@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIF — 對公客戶信息查詢</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; background: #f5f6f8; color: #1a1a1a; line-height: 1.5; }
+
+/* ── TOP NAV ── */
+.nav { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
+.nav-brand { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+.nav-sep { color: #e0e0e0; }
+.nav-sub { font-size: 13px; font-weight: 400; color: #888; }
+.nav-right { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #1677ff; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* ── CENTER WRAPPER ── */
+.page-center { max-width: 1360px; margin: 0 auto; padding: 0 24px; }
+
+/* ── BREADCRUMB ── */
+.breadcrumb { font-size: 12px; color: #999; padding: 12px 0 8px; }
+.breadcrumb a { color: #1677ff; text-decoration: none; }
+
+/* ── CUSTOMER HEADER ── */
+.cust-hd { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.cust-logo { width: 40px; height: 40px; border-radius: 6px; background: #e6f4ff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #1677ff; flex-shrink: 0; }
+.cust-meta { flex: 1; min-width: 0; }
+.cust-name-en { font-size: 15px; font-weight: 700; color: #111; }
+.cust-name-cn { font-size: 12px; color: #888; margin-top: 1px; }
+.cust-tags { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.tag-plain { font-size: 12px; color: #555; display: flex; align-items: center; gap: 3px; }
+.tag-plain b { color: #222; }
+.tag-sep { color: #e0e0e0; }
+.cust-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ── BADGES ── */
+.badge { display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; border: 1px solid; white-space: nowrap; }
+.b-active    { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-low       { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-med       { background: #fffbe6; color: #d48806; border-color: #ffe58f; }
+.b-high      { background: #fff2f0; color: #cf1322; border-color: #ffccc7; }
+.b-pass      { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-attn      { background: #fffbe6; color: #d48806; border-color: #ffe58f; }
+.b-reject    { background: #fff2f0; color: #cf1322; border-color: #ffccc7; }
+.b-ao        { background: #e6f4ff; color: #0958d9; border-color: #91caff; }
+.b-pr        { background: #f0f5ff; color: #531dab; border-color: #d3adf7; }
+.b-te        { background: #fffbe6; color: #d48806; border-color: #ffe58f; }
+.b-frozen    { background: #fff2f0; color: #cf1322; border-color: #ffccc7; }
+.b-unfrozen  { background: #f5f5f5; color: #595959; border-color: #d9d9d9; }
+.b-fund-act  { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-fund-cls  { background: #f5f5f5; color: #595959; border-color: #d9d9d9; }
+.b-acct-a    { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-acct-c    { background: #f5f5f5; color: #595959; border-color: #d9d9d9; }
+.b-sign-1    { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-sign-2    { background: #fffbe6; color: #d48806; border-color: #ffe58f; }
+.b-sign-3    { background: #fff2f0; color: #cf1322; border-color: #ffccc7; }
+.b-blk-add   { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.b-blk-rem   { background: #fff2f0; color: #cf1322; border-color: #ffccc7; }
+
+/* country pill */
+.cpill { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; background: #ffe58f; color: #7c4a03; border: 1px solid #ffd666; margin-right: 3px; }
+.cpill.blue { background: #e6f4ff; color: #0958d9; border-color: #91caff; }
+
+/* cert tags */
+.ct { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; border: 1px solid; margin-right: 2px; }
+.ct-id  { background: #e6f4ff; color: #0958d9; border-color: #91caff; }
+.ct-pp  { background: #f9f0ff; color: #531dab; border-color: #d3adf7; }
+.ct-cd  { background: #fff7e6; color: #d46b08; border-color: #ffd591; }
+.ct-ci  { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+.ct-br  { background: #f0f5ff; color: #2f54eb; border-color: #adc6ff; }
+
+/* ── BUTTONS ── */
+.btn { height: 30px; padding: 0 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; white-space: nowrap; }
+.btn:hover { border-color: #1677ff; color: #1677ff; }
+.btn-primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+.btn-primary:hover { background: #0958d9; }
+.btn-sm { height: 24px; padding: 0 10px; font-size: 11px; }
+.link-btn { background: none; border: none; color: #1677ff; cursor: pointer; font-size: 12px; padding: 0; }
+.link-btn:hover { text-decoration: underline; }
+
+/* ── TAB BAR ── */
+.tab-bar { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 0 8px; display: flex; overflow-x: auto; margin-bottom: 16px; }
+.tab-bar::-webkit-scrollbar { height: 0; }
+.tab { padding: 10px 16px; font-size: 13px; font-weight: 400; color: #595959; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; user-select: none; }
+.tab:hover { color: #1677ff; }
+.tab.active { color: #1677ff; font-weight: 600; border-bottom-color: #1677ff; }
+
+/* ── TAB PANELS ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── SECTION BLOCK ── */
+.sec { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+.sec-hd { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; }
+.sec-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.sec-icon { font-size: 16px; }
+.sec-hd-right { display: flex; align-items: center; gap: 10px; }
+.sec-body { padding: 0; }
+
+/* ── KEY-VALUE GRID (Company Info style — 2-col label+value) ── */
+.kv-table { width: 100%; border-collapse: collapse; }
+.kv-table tr { border-bottom: 1px solid #f5f5f5; }
+.kv-table tr:last-child { border-bottom: none; }
+.kv-table td { padding: 9px 20px; vertical-align: top; font-size: 13px; }
+.kv-table td.kv-label { width: 280px; color: #888; background: #fafafa; border-right: 1px solid #f0f0f0; white-space: nowrap; }
+.kv-table td.kv-value { color: #1a1a1a; font-weight: 400; }
+.kv-table-2col { display: grid; grid-template-columns: 1fr 1fr; }
+.kv-half { display: contents; }
+
+/* ── DATA TABLE ── */
+.dt { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dt thead tr { border-bottom: 1px solid #f0f0f0; }
+.dt th { padding: 10px 16px; font-size: 12px; font-weight: 600; color: #595959; text-align: left; white-space: nowrap; background: #fff; }
+.dt td { padding: 12px 16px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: #1a1a1a; }
+.dt tbody tr:last-child td { border-bottom: none; }
+.dt tbody tr:hover td { background: #fafafa; }
+.dt-wrap { overflow-x: auto; }
+
+/* ── PAGINATION ── */
+.pager { display: flex; align-items: center; justify-content: flex-end; padding: 10px 20px; gap: 4px; }
+.pager-btn { width: 28px; height: 28px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #595959; }
+.pager-btn.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+.pager-btn:hover:not(.active) { border-color: #1677ff; color: #1677ff; }
+
+/* ── DONUT CHART AREA ── */
+.chart-area { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+.donut-wrap { position: relative; width: 160px; height: 160px; }
+.donut-wrap svg { width: 160px; height: 160px; }
+.donut-legend { display: flex; gap: 20px; margin-top: 12px; }
+.donut-leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #595959; }
+.donut-leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── ASSET OVERVIEW TOP ── */
+.asset-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 0; }
+.asset-currency { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; }
+.asset-total { font-size: 13px; color: #555; }
+.asset-total b { color: #1a1a1a; font-size: 15px; }
+.sub-sec-hd { display: flex; align-items: center; gap: 8px; padding: 14px 20px 10px; font-size: 13px; font-weight: 600; color: #1a1a1a; border-top: 1px solid #f5f5f5; margin-top: 4px; }
+.sub-sec-hd:first-child { border-top: none; }
+
+/* ── COMPANY INFO 2-column KV ── */
+.ci-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #f5f5f5; }
+.ci-row { display: contents; }
+.ci-cell { display: flex; border-bottom: 1px solid #f5f5f5; }
+.ci-cell:nth-child(odd) { border-right: 1px solid #f5f5f5; }
+.ci-cell.full { grid-column: span 2; border-right: none; }
+.ci-lbl { min-width: 220px; width: 220px; padding: 9px 16px; background: #fafafa; color: #888; font-size: 12px; border-right: 1px solid #f0f0f0; flex-shrink: 0; }
+.ci-val { padding: 9px 16px; font-size: 13px; color: #1a1a1a; flex: 1; }
+
+/* ── CONNECTED PARTY individual block ── */
+.cp-block { border: 1px solid #f0f0f0; border-radius: 6px; margin: 12px 20px; overflow: hidden; }
+.cp-block-hd { padding: 8px 14px; background: #fafafa; border-bottom: 1px solid #f0f0f0; font-size: 12px; font-weight: 600; color: #444; display: flex; align-items: center; justify-content: space-between; }
+
+/* ── MISC ── */
+.mono { font-family: 'SF Mono', Consolas, monospace; font-size: 12px; }
+.text-link { color: #1677ff; cursor: pointer; }
+.text-link:hover { text-decoration: underline; }
+.empty-val { color: #bbb; }
+.section-spacer { height: 8px; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="nav">
+  <div class="nav-brand">
+    ZA Bank CIF <span class="nav-sep">|</span><span class="nav-sub">對公客戶信息查詢</span>
+  </div>
+  <div class="nav-right">
+    <div class="avatar">李</div>
+    <span>李四 (AML Checker)</span>
+    <a href="#" style="color:#1677ff;text-decoration:none;font-size:12px;">退出</a>
+  </div>
+</div>
+
+<div class="page-center">
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb"><a href="#">客戶查詢</a> / 客戶詳情</div>
+
+<!-- CUSTOMER HEADER -->
+<div class="cust-hd">
+  <div class="cust-logo">眾</div>
+  <div class="cust-meta">
+    <div class="cust-name-en">EXAMPLE TECHNOLOGY LIMITED</div>
+    <div class="cust-name-cn">示例科技有限公司</div>
+    <div class="cust-tags">
+      <span class="tag-plain">Client No: <b>CIF00012345</b></span>
+      <span class="tag-sep">|</span>
+      <span class="tag-plain"><span class="ct ct-ci">CI</span> <b>CI-2024-0001-XYZ</b></span>
+      <span class="badge b-active">Active</span>
+      <span class="badge b-med">Medium Risk</span>
+      <span class="tag-sep">|</span>
+      <span class="tag-plain">Account Officer: <b>王小明 (AO000123)</b></span>
+      <span class="tag-sep">|</span>
+      <span class="tag-plain">Next Review: <b style="color:#d48806;">20260110</b></span>
+    </div>
+  </div>
+  <div class="cust-actions">
+    <button class="btn">← 返回</button>
+    <button class="btn">Edit</button>
+    <button class="btn btn-primary">+ New Order</button>
+  </div>
+</div>
+
+<!-- MAIN TAB BAR -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('companyinfo',this)">Company Info</div>
+  <div class="tab" onclick="switchTab('connected',this)">Connected Party</div>
+  <div class="tab" onclick="switchTab('asset',this)">Asset Overview</div>
+  <div class="tab" onclick="switchTab('card',this)">Card Information</div>
+  <div class="tab" onclick="switchTab('auth',this)">Authorization Arrangement</div>
+  <div class="tab" onclick="switchTab('companysearch',this)">Company Search</div>
+  <div class="tab" onclick="switchTab('blockcode',this)">Block Code</div>
+  <div class="tab" onclick="switchTab('attachment',this)">Attachment</div>
+  <div class="tab" onclick="switchTab('ekyc',this)">eKYC Records</div>
+  <div class="tab" onclick="switchTab('auditlog',this)">Audit Log</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     TAB: COMPANY INFO
+═══════════════════════════════════════ -->
+<div id="panel-companyinfo" class="tab-panel active">
+
+  <!-- § Company Base Info -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon">🏢</span> Company Base Info</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Company English Name</div><div class="ci-val">Example Technology Limited</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Chinese Name</div><div class="ci-val">示例科技有限公司</div></div>
+        <div class="ci-cell"><div class="ci-lbl">ID Type</div><div class="ci-val">CI - CERTIFICATE OF INCORPORATION</div></div>
+        <div class="ci-cell"><div class="ci-lbl">ID Number</div><div class="ci-val mono">BR-2024-0001-XYZ</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Type</div><div class="ci-val">CO - LIMITED COMPANY (UNLISTED)</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Establish Date</div><div class="ci-val">20180520</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country of Registration</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Listing Company</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">High Tax Evasion Risk</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Name(s) of Stock Exchange</div><div class="ci-val">HKEX</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Bearer Shares Issued</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Intermediate owners capable of issuing bearer shares</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Channel</div><div class="ci-val">O - Solely E-Onboarding Channel</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Usage of products</div><div class="ci-val">01 - Low Risk Product Only</div></div>
+        <div class="ci-cell"><div class="ci-lbl">On PEC</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Number of layers of ownership structure</div><div class="ci-val">02</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Account Officer</div><div class="ci-val mono">AO000123</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Account Officer Name</div><div class="ci-val">王小明</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country Of Risk</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country Of Origin</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Trading Name (English)</div><div class="ci-val">Example Tech, ExTech Global</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Trading Name (Chinese)</div><div class="ci-val">示例科技、示例科技集團</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Contact Details -->
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="sec-icon" style="color:#1677ff">📋</span> Contact Details</div>
+      <div class="sec-hd-right"><button class="link-btn">🕐 变更歷史</button></div>
+    </div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Company Registered Address</div><div class="ci-val">Room 1201, Central Plaza, 18 Harbour Road, Sao Paulo, <span class="cpill">BRAZIL</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Operation Address</div><div class="ci-val">Unit 5, Science Park, Minsk, <span class="cpill">BELARUS</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Mailing Address</div><div class="ci-val">PO Box 12345, Wan Chai Post Office, <span class="cpill blue">Hong Kong</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Declaration of registered address and business address</div><div class="ci-val">1 - The registered address or business address is an address of a corporate secretarial firm</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Reason</div><div class="ci-val">Registered address managed by corporate secretarial service provider</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Contact Person Last name</div><div class="ci-val">Chan</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Contact Person First Name</div><div class="ci-val">Michael</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Contact Person Email Address</div><div class="ci-val">michael.chan@example.com</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Contact Person Telephone Number</div><div class="ci-val">+852-6123-4567</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Contact Person Job Title</div><div class="ci-val">01 - Director</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Contact Person Job Title</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Office Telephone Number</div><div class="ci-val">+852-2890-1234</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Website</div><div class="ci-val">https://example.corp.hk</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Group CIF Number</div><div class="ci-val mono">GCIF00000123</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Group CIF Name</div><div class="ci-val">Example Group Holdings Limited</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Company Business Background -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#52c41a">🏭</span> Company Business Background</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Office Location(s)</div><div class="ci-val"><span class="cpill">IRAQ</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Principal Place of Operations</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Countries of Foreign Branch(es)/Subsidiary(ies)/Factory(ies)</div><div class="ci-val"><span class="cpill">CUBA</span><span class="cpill">INDIA</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country of Key Counterparties</div><div class="ci-val"><span class="cpill blue">CHINA</span><span class="cpill blue">UNITED STATES</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Industry Category 1</div><div class="ci-val">TECH01</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Key Products/ Services 1</div><div class="ci-val">SAAS01</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Industry Category 2</div><div class="ci-val">TECH02</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Key Products/ Services 2</div><div class="ci-val">CONS01</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Name of Regulatory Body</div><div class="ci-val">Hong Kong Monetary Authority</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Regulatory Reference Number</div><div class="ci-val">REG-2025-001</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country of Regulatory Body</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Country of Employee(s) / Number of Employee(s)</div><div class="ci-val"><span class="cpill blue">HONG KONG</span> 120; <span class="cpill blue">CHINA</span> 45</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Whether WEB3 Company</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Whether Greater China Company</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Financial Background</div><div class="ci-val">1170 - PRIVATE-OWNED</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Is your Company a Holding Company</div><div class="ci-val">No</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Referral Party</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Source of Wealth/Fund -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#faad14">💰</span> Source of Wealth/Fund</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Initial Source of Wealth</div><div class="ci-val">BI - BUSINESS INCOME, IF - INTRA-GROUP FINANCING</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Initial Source of Wealth</div><div class="ci-val">Seed capital from legacy business</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Ongoing Source of Wealth</div><div class="ci-val">IP - INVESTMENT BY ULTIMATE BENEFICIAL OWNER / PARTNER, SA - SALE OF PROPERTY / ASSET</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Ongoing Source of Wealth</div><div class="ci-val">Consulting income</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Initial Source of Fund</div><div class="ci-val">BI - BUSINESS INCOME, OT - OTHER</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Initial Source of Fund</div><div class="ci-val">One-off shareholder injection</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Ongoing Source of Fund</div><div class="ci-val">IF - INTRA-GROUP FINANCING</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Ongoing Source of Fund</div><div class="ci-val">Operating cashflow</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Anticipated Transaction -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">🔄</span> Anticipated Transaction &amp; Purpose of Usage</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Domestic / International Transaction</div><div class="ci-val">C - Domestic and International Payment</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Does the Company intend to make Cross Border Transaction</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Countries (from) of Cross Border Transaction</div><div class="ci-val"><span class="cpill blue">HONG KONG</span><span class="cpill blue">CHINA</span><span class="cpill blue">UNITED STATES</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Countries (from) of Cross Border Transaction</div><div class="ci-val"><span class="cpill blue">HONG KONG</span><span class="cpill blue">SINGAPORE</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Number of Cross Border Transaction (Inward)</div><div class="ci-val">A - 1-20</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Inward Amount of Cross Border Transaction - Currency</div><div class="ci-val">HKD</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Inward Amount of Cross Border Transaction - Amount</div><div class="ci-val">250000.00</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Number of Cross Border Transaction (Outward)</div><div class="ci-val">B - 21-50</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Outward Amount of Cross Border Transaction - Currency</div><div class="ci-val">USD</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Outward Amount of Cross Border Transaction - Amount</div><div class="ci-val">180000.00</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Purpose for Cross-Border Transaction</div><div class="ci-val">TRD - Trading, INV - Investment</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Purpose for Cross-Border Transaction</div><div class="ci-val">Software licensing settlement</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Does the Company intend to make Regular Domestic Transaction</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Number of Regular Transaction (Inward)</div><div class="ci-val">C - 50+</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Inward Amount of Regular Transaction - Currency</div><div class="ci-val">HKD</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Inward Amount of Regular Transaction - Amount</div><div class="ci-val">1200000.00</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Number of Regular Transaction (Outward)</div><div class="ci-val">B - 21-50</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Outward Amount of Regular Transaction - Currency</div><div class="ci-val">HKD</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Monthly Outward Amount of Regular Transaction - Amount</div><div class="ci-val">800000.00</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Purpose for Regular Transaction</div><div class="ci-val">PAY - Payroll, RNT - Rental Payment / Collection</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Other Purpose for Regular Transaction</div><div class="ci-val">Office rental &amp; payroll</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Does the Company intend to hold balances in the account with infrequent activity</div><div class="ci-val">No</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Please indicate the amount and rationale</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § FATCA/CRS -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#722ed1">📜</span> FATCA/CRS</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">FATCA Documentation</div><div class="ci-val">01 - Form W-8BEN-E</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Others - Please specify</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">FATCA Classification</div><div class="ci-val">31 - Passive NFFE with no substantial U.S. owners</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Non-consenting U.S. account Sub-type</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Disregarded entity</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Sign Date of FATCA Documentation</div><div class="ci-val">20250110</div></div>
+        <div class="ci-cell"><div class="ci-lbl">FATCA Due Diligence Status</div><div class="ci-val">01 - Completed - Normal FATCA</div></div>
+        <div class="ci-cell"><div class="ci-lbl">CRS Entity Classification</div><div class="ci-val">01</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Sign Date of CRS Documentation</div><div class="ci-val">20250110</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Tax Residency</div><div class="ci-val"><span class="cpill blue">HONG KONG</span><span class="cpill blue">UNITED STATES</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Tax identifying number (TIN)</div><div class="ci-val mono">ABCD1234567890, TIN99887766</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Reason for No TIN</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">GIIN Code</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">GIIN Status</div><div class="ci-val">1 - Valid</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Company Change -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#fa8c16">🔁</span> Company Change</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Material Changes in last 5 years</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Name Changed</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Old Company Name(s)</div><div class="ci-val">Example Tech (HK) Limited (20160101-20180531), ExTech Global Limited (20190601-20200115)</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Products and Services Changed</div><div class="ci-val">Yes</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Old Industry / Key Products/Services</div><div class="ci-val">IC:TECH01, KP:SAAS01 (20170101-20181231) - Reason: Business pivot to enterprise SaaS; IC:TECH02, KP:CONS01 (20190101-20201231) - Reason: Consulting for product rollout</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Ownership Structure Changed</div><div class="ci-val">No</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Ownership Structure Change Period</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Reasons for changing Company Ownership Structure</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Beneficial Owners Changed</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Beneficial Owners Change Period</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Reasons for changing Beneficial Owners</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Company Secretary -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#13c2c2">🔍</span> Company Search - Company Secretary Information</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">ID Type</div><div class="ci-val">CI - CERTIFICATE OF INCORPORATION</div></div>
+        <div class="ci-cell"><div class="ci-lbl">ID Number</div><div class="ci-val mono">SC-2019-00012345</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company English Name</div><div class="ci-val">Prime Corporate Services Limited</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Company Chinese Name</div><div class="ci-val">卓越企業服務有限公司</div></div>
+        <div class="ci-cell full"><div class="ci-lbl">Secretary Address</div><div class="ci-val">23/F, Enterprise Tower, 88 Gloucester Road, Wan Chai, <span class="cpill blue">Hong Kong</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Other Information -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#595959">ℹ️</span> Other Information</div></div>
+    <div class="sec-body">
+      <div class="ci-grid">
+        <div class="ci-cell"><div class="ci-lbl">Client Open Date</div><div class="ci-val">20180520</div></div>
+        <div class="ci-cell"><div class="ci-lbl">Client Close Date</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">Client Risk</div><div class="ci-val"><span class="badge b-med">Medium Risk</span></div></div>
+        <div class="ci-cell"><div class="ci-lbl">CDD Last Review Date</div><div class="ci-val">20240119</div></div>
+        <div class="ci-cell"><div class="ci-lbl">CDD Next Review Date</div><div class="ci-val" style="color:#d48806;font-weight:600;">20260110</div></div>
+        <div class="ci-cell"><div class="ci-lbl">High Risk Remarks</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-companyinfo -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: CONNECTED PARTY
+═══════════════════════════════════════ -->
+<div id="panel-connected" class="tab-panel">
+
+  <!-- Individuals -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">👤</span> Individuals</div></div>
+    <div class="sec-body">
+
+      <!-- Individual #1 -->
+      <div class="cp-block">
+        <div class="cp-block-hd">
+          Individual #1
+          <button class="link-btn">🕐 變更歷史</button>
+        </div>
+        <div class="ci-grid">
+          <div class="ci-cell"><div class="ci-lbl">ID Type</div><div class="ci-val">PP - Passport</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Other ID Type</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">ID Number</div><div class="ci-val mono">P123456789</div></div>
+          <div class="ci-cell"><div class="ci-lbl">First Name</div><div class="ci-val">John</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Last Name</div><div class="ci-val">Doe</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Chinese Name</div><div class="ci-val">張三</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Capacity of Connected Party</div><div class="ci-val">085 - Beneficial Owner</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Controlling Person Type</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Sign Date of CRS Documentation (for Controlling Person)</div><div class="ci-val">20240110</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Tax residency</div><div class="ci-val"><span class="cpill blue">HONG KONG</span><span class="cpill blue">UNITED STATES</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Tax identification number (TIN)</div><div class="ci-val mono">TIN99887766</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Reason for no TIN</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Ownership</div><div class="ci-val">030</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Job Title</div><div class="ci-val">Director</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Permanent HKID</div><div class="ci-val">No</div></div>
+          <div class="ci-cell"><div class="ci-lbl">ID Issue Date</div><div class="ci-val">20200101</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Gender</div><div class="ci-val">M</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Date of Birth</div><div class="ci-val">19900101</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Place of Birth</div><div class="ci-val"><span class="cpill">SOUTH AFRICA</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Nationality</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Email Address</div><div class="ci-val">john.doe@example.com</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Telephone Number</div><div class="ci-val">+852 61234567</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Residential Address</div><div class="ci-val">Flat A, 10/F, Example Building, Wan Chai, <span class="cpill blue">Hong Kong</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Beneficial Owner Source of Wealth (Only for Beneficial Owner)</div><div class="ci-val">Personal Savings</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Others (Please Specify)</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Country(ies) in which Beneficial Owner attained his/her Initial Source of Wealth</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Country(ies) in which Beneficial Owner attained his/her Ongoing Source of Wealth</div><div class="ci-val"><span class="cpill blue">HONG KONG</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Related Client On PEP</div><div class="ci-val">No</div></div>
+          <div class="ci-cell"><div class="ci-lbl">&nbsp;</div><div class="ci-val"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Entities -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#52c41a">🏢</span> Entities</div></div>
+    <div class="sec-body">
+
+      <!-- Entity #1 -->
+      <div class="cp-block">
+        <div class="cp-block-hd">Entity #1 <button class="link-btn">🕐 變更歷史</button></div>
+        <div class="ci-grid">
+          <div class="ci-cell"><div class="ci-lbl">ID Type</div><div class="ci-val">CI - CERTIFICATE OF INCORPORATION</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Other ID Type</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">ID Number</div><div class="ci-val mono">BR-EN-0001</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Full Name in English</div><div class="ci-val">Associated Holdings Limited</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Full Name in Chinese (if applicable)#</div><div class="ci-val">關聯控股有限公司</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Entity Type of Connected Entity</div><div class="ci-val">CO - LIMITED COMPANY (UNLISTED)</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Capacity of Connected Entity</div><div class="ci-val">103 - Senior Officer</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Ownership</div><div class="ci-val">025</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Listing on Stock Exchange</div><div class="ci-val">No</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Name(s) of Stock Exchange</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Office Address (Only for Senior Office, Director, Authorised Representative)#</div><div class="ci-val">13/F, Commerce Tower, Central, <span class="cpill">BRAZIL</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Principal Business Address (Only for Senior Office)#</div><div class="ci-val">Unit 3, Tech Park, Shatin, <span class="cpill blue">Hong Kong</span></div></div>
+        </div>
+      </div>
+
+      <!-- Entity #2 -->
+      <div class="cp-block" style="margin-bottom:12px;">
+        <div class="cp-block-hd">Entity #2 <button class="link-btn">🕐 變更歷史</button></div>
+        <div class="ci-grid">
+          <div class="ci-cell"><div class="ci-lbl">ID Type</div><div class="ci-val">BR - BUSINESS REGISTRATION CERTIFICATE</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Other ID Type</div><div class="ci-val">Custom License</div></div>
+          <div class="ci-cell"><div class="ci-lbl">ID Number</div><div class="ci-val mono">BR-EN-0002</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Full Name in English</div><div class="ci-val">Alpha Partners</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Full Name in Chinese (if applicable)#</div><div class="ci-val">甲方合夥</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Entity Type of Connected Entity</div><div class="ci-val">PA - Partnership</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Capacity of Connected Entity</div><div class="ci-val">034 - Director</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Ownership</div><div class="ci-val">010</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Listing on Stock Exchange</div><div class="ci-val">Yes</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Name(s) of Stock Exchange</div><div class="ci-val">HKEX</div></div>
+          <div class="ci-cell"><div class="ci-lbl">Registered Office Address#</div><div class="ci-val">14/F, Commerce Tower, Central, <span class="cpill">Iraq</span></div></div>
+          <div class="ci-cell"><div class="ci-lbl">Principal Business Address#</div><div class="ci-val"><span class="empty-val">-</span></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /panel-connected -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: ASSET OVERVIEW
+═══════════════════════════════════════ -->
+<div id="panel-asset" class="tab-panel">
+
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="sec-icon" style="color:#1677ff">📊</span> Asset Overview</div>
+    </div>
+    <div class="sec-body">
+      <!-- currency selector + total -->
+      <div class="asset-top">
+        <div class="asset-currency">
+          Currency (HKD equivalent):
+          <select style="border:1px solid #d9d9d9;border-radius:4px;padding:2px 8px;font-size:12px;"><option>HKD</option><option>USD</option></select>
+        </div>
+        <div class="asset-total">Total amount (HKD equivalent): <b>6,400,000.25</b></div>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="chart-area">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 160 160">
+            <!-- TD 74.63% green, DD 25.37% blue -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#52c41a" stroke-width="30"
+              stroke-dasharray="282.8" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#1677ff" stroke-width="30"
+              stroke-dasharray="282.8" stroke-dashoffset="211"  transform="rotate(-90 80 80)"/>
+            <text x="80" y="76" text-anchor="middle" font-size="11" fill="#595959">DD/TD</text>
+            <text x="80" y="90" text-anchor="middle" font-size="10" fill="#595959">Split</text>
+          </svg>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;font-size:12px;color:#595959;">
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#1677ff;display:inline-block;"></span>DD - 活期 &nbsp;25.37%</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block;"></span>TD - 定期 &nbsp;74.63%</span>
+        </div>
+      </div>
+
+      <!-- DD 活期 -->
+      <div class="sub-sec-hd">Application Type: DD - 活期</div>
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>Application Type</th><th>Account/Contract No.</th><th>Account Type</th><th>Account Name</th>
+            <th>Currency (HKD equivalent)</th><th>Current Book Balance (HKD equivalent)</th>
+            <th>Open Date</th><th>Close Date</th><th>Account Status</th><th>Last Action</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>DD - 活期</td><td><span class="text-link">012345678901</span></td><td>Client Account</td><td>Example Corp Current Account</td><td>HKD</td><td>1,250,000.25</td><td>20210105</td><td></td><td><span class="badge b-acct-a">A - Active</span></td><td><button class="link-btn">Balance Details</button></td></tr>
+            <tr><td>DD - 活期</td><td><span class="text-link">223344556677</span></td><td>Suspense Account</td><td>Suspense Account - Ops</td><td>HKD</td><td>0.00</td><td>20200101</td><td>20211231</td><td><span class="badge b-acct-c">C - Closed</span></td><td><button class="link-btn">Balance Details</button></td></tr>
+            <tr><td>DD - 活期</td><td><span class="text-link">667788990011</span></td><td>House Account</td><td>Example Corp House Account</td><td>HKD</td><td>450,000.00</td><td>20240201</td><td></td><td><span class="badge b-acct-a">A - Active</span></td><td><button class="link-btn">Balance Details</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+
+      <!-- TD 定期 -->
+      <div class="sub-sec-hd">Application Type: TD - 定期</div>
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>Application Type</th><th>Contract No.</th><th>Serial No.</th><th>Currency</th>
+            <th>Status</th><th>Product Code</th><th>Principal</th><th>Tenor</th>
+            <th>Contract Rate</th><th>Interest Amount</th><th>Value Date</th><th>Maturity Date</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>TD - 定期</td><td>998877665544</td><td>00001</td><td>HKD</td><td><span class="badge b-fund-act">ACTIVE</span></td><td>TDC00001</td><td>5,000,000.00</td><td>012</td><td>3.500%</td><td>105,000.00</td><td>20230701</td><td>20240701</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+  <!-- Funds Freezing -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#cf1322">🔒</span> Funds Freezing</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Freeze Type</th><th>Freeze Amount</th><th>Freeze Date</th><th>Freeze Reason</th><th>Freeze Status</th></tr></thead>
+          <tbody>
+            <tr><td>司法凍結</td><td>150,000.00</td><td>2024-01-10</td><td>法院執行令</td><td><span class="badge b-frozen">凍結中</span></td></tr>
+            <tr><td>風控凍結</td><td>80,000.00</td><td>2024-01-15</td><td>異常交易監控</td><td><span class="badge b-frozen">凍結中</span></td></tr>
+            <tr><td>臨時凍結</td><td>20,000.00</td><td>2024-01-18</td><td>賬戶安全驗證</td><td><span class="badge b-frozen">凍結中</span></td></tr>
+            <tr><td>風控凍結</td><td>120,000.00</td><td>2024-06-12</td><td>高風險關聯賬戶</td><td><span class="badge b-unfrozen">已解凍</span></td></tr>
+            <tr><td>司法凍結</td><td>50,000.00</td><td>2024-09-03</td><td>涉案資金保全</td><td><span class="badge b-frozen">凍結中</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+  <!-- Loan Information -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">📋</span> Loan Information</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Loan Type</th><th>Loan Account</th><th>Loan Amount</th><th>Loan Effective Date</th><th>Loan Maturity Date</th></tr></thead>
+          <tbody>
+            <tr><td>PL</td><td class="mono">LN0001234567</td><td>250,000.00</td><td>2024-02-01</td><td>2026-02-01</td></tr>
+            <tr><td>MT</td><td class="mono">LN0002233445</td><td>1,500,000.00</td><td>2024-01-15</td><td>2034-01-15</td></tr>
+            <tr><td>CC</td><td class="mono">LN0009988776</td><td>0.00</td><td><span class="empty-val">-</span></td><td><span class="empty-val">-</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+  <!-- Fund Information -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#52c41a">📈</span> Fund Information</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Fund Type</th><th>Fund Account</th><th>Fund Name</th><th>Fund Amount</th><th>Fund Status</th></tr></thead>
+          <tbody>
+            <tr><td>MF</td><td class="mono">FD0001122334</td><td>ZA Growth Fund A</td><td>320,000.00</td><td><span class="badge b-fund-act">Active</span></td></tr>
+            <tr><td>ETF</td><td class="mono">FD0005566778</td><td>Tech Innovation ETF</td><td>1,250,000.00</td><td><span class="badge b-fund-act">Active</span></td></tr>
+            <tr><td>BD</td><td class="mono">FD0009988775</td><td>Global Bond Fund</td><td>0.00</td><td><span class="badge b-fund-cls">Closed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+</div><!-- /panel-asset -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: CARD INFORMATION
+═══════════════════════════════════════ -->
+<div id="panel-card" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">💳</span> Card Information</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Card Number</th><th>Account Number</th><th>Open Date</th><th>Activation Date</th><th>Activation Status</th><th>Close Date</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">5246112233445566</td><td class="mono">012345678901</td><td>2024-01-10</td><td>2024-01-12</td><td>Activated</td><td><span class="empty-val">-</span></td></tr>
+            <tr><td class="mono">4332998877665544</td><td class="mono">112233445566</td><td>2024-02-05</td><td><span class="empty-val">-</span></td><td>Not Activated</td><td><span class="empty-val">-</span></td></tr>
+            <tr><td class="mono">4111222233334444</td><td class="mono">778899001122</td><td>2020-01-01</td><td>2020-01-03</td><td>Activated</td><td>2025-01-01</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-card -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: AUTHORIZATION ARRANGEMENT
+═══════════════════════════════════════ -->
+<div id="panel-auth" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="sec-icon" style="color:#1677ff">✅</span> Signing Arrangement</div>
+      <div class="sec-hd-right"><button class="btn btn-sm">🕐 Modification History</button></div>
+    </div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>CI Number</th><th>Company English Name</th><th>Signing Instruction</th>
+            <th>ID Type</th><th>ID Number</th><th>Authorised Representative English Name</th><th>Signature Specimen</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="mono">CIF00012345</td><td>Example Technology Limited</td>
+              <td><span class="badge b-sign-1">1 - Any one to sign</span></td>
+              <td>ID - HK Identity Card</td><td class="mono">H123456789</td><td>Michael Chan</td>
+              <td><button class="link-btn">查看簽名</button></td>
+            </tr>
+            <tr>
+              <td class="mono">CIF00012345</td><td>Example Technology Limited</td>
+              <td><span class="badge b-sign-2">2 - Any two to sign</span></td>
+              <td>PP - Passport</td><td class="mono">K22334455</td><td>Raymond Wong</td>
+              <td><button class="link-btn">查看簽名</button></td>
+            </tr>
+            <tr>
+              <td class="mono">CIF00012345</td><td>Example Technology Limited</td>
+              <td><span class="badge b-sign-3">3 - Any three to sign</span></td>
+              <td>CD - Chinese Resident Identity Card</td><td class="mono">440101198803010123</td><td>Alice Lee</td>
+              <td><button class="link-btn">查看簽名</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-auth -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: COMPANY SEARCH
+═══════════════════════════════════════ -->
+<div id="panel-companysearch" class="tab-panel">
+
+  <!-- TU Entity Details -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">🔍</span> TU Company Search - Entity Details</div></div>
+    <div class="sec-body">
+      <table class="kv-table">
+        <tr><td class="kv-label">Company type</td><td class="kv-value">LIMITED COMPANY (UNLISTED)</td><td class="kv-label">Company status</td><td class="kv-value">Active</td></tr>
+        <tr><td class="kv-label">Company name</td><td class="kv-value">Example Technology Limited</td><td class="kv-label">Incorporation date</td><td class="kv-value">2018-05-20</td></tr>
+        <tr><td class="kv-label">Company registered address</td><td class="kv-value" colspan="3">Room 1201, Central Plaza, 18 Harbour Road, Sao Paulo, BRAZIL</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Connected Party -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#52c41a">👥</span> Connected Party</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Role</th><th>ID Type</th><th>Other ID Type</th><th>ID Number</th><th>First Name</th><th>Last Name</th><th>Percentage of share of shareholders</th></tr></thead>
+          <tbody>
+            <tr><td>Director</td><td>ID - HK Identity Card</td><td></td><td class="mono">H123456789</td><td>Michael</td><td>Chan</td><td>25%</td></tr>
+            <tr><td>Shareholder</td><td>PP - Passport</td><td></td><td class="mono">K987654321</td><td>Raymond</td><td>Wong</td><td>40%</td></tr>
+            <tr><td>Beneficial Owner</td><td>CD - Chinese Resident Identity Card</td><td>Resident Permit</td><td class="mono">440101198803010123</td><td>Alice</td><td>Lee</td><td>35%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+  <!-- Related Documents -->
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">📄</span> Related documents</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>Document</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Business registration certificate</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>Certificate of incorporate</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>NAR1</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>M&amp;A</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>Form1(a)</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>Form1(c)</td><td><button class="link-btn">查看</button></td></tr>
+            <tr><td>Other</td><td><button class="link-btn">查看</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+
+</div><!-- /panel-companysearch -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: BLOCK CODE
+═══════════════════════════════════════ -->
+<div id="panel-blockcode" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#cf1322">🔐</span> BlockCode List</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>Transaction Seq</th><th>Rule ID Number</th><th>Client Number</th><th>Account Number</th>
+            <th>Vertical</th><th>Channel</th><th>Block Code</th><th>Action</th><th>Reason</th><th>Setting Mode</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="mono">TRX202501200001</td><td class="mono">RL-0001</td><td class="mono">CIF00012345</td><td class="mono">012345678901</td>
+              <td>1 - Retail</td><td>1 - CAAS</td><td class="mono">BC101</td>
+              <td><span class="badge b-blk-add">1 - Add</span></td>
+              <td>High risk - sanction list match</td><td>1 - 系統</td>
+            </tr>
+            <tr>
+              <td class="mono">TRX202501210007</td><td class="mono">RL-0032</td><td class="mono">CIF00012345</td><td class="mono">998877665544</td>
+              <td>2 - Business</td><td>2 - ARK</td><td class="mono">BC212</td>
+              <td><span class="badge b-blk-rem">2 - Remove</span></td>
+              <td>Manual review passed</td><td>2 - 人工</td>
+            </tr>
+            <tr>
+              <td class="mono">TRX202501220099</td><td class="mono">RL-0020</td><td class="mono">CIF00067890</td><td class="mono">223344556677</td>
+              <td>1 - Retail</td><td>3 - EOB</td><td class="mono">BC315</td>
+              <td><span class="badge b-blk-add">1 - Add</span></td>
+              <td>Dormant account over 24 months</td><td>1 - 系統</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-blockcode -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: ATTACHMENT
+═══════════════════════════════════════ -->
+<div id="panel-attachment" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">📎</span> Attachments</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr><th>No.</th><th>Document Name</th><th>Uploader</th><th>Upload time</th><th>Download</th></tr></thead>
+          <tbody>
+            <tr><td>001</td><td>Business License.pdf</td><td>Michael Chan</td><td>2025-01-10 10:30:45</td><td><button class="link-btn">下載</button></td></tr>
+            <tr><td>002</td><td>Board Resolution.pdf</td><td>Raymond Wong</td><td>2025-01-12 12:15:30</td><td><button class="link-btn">下載</button></td></tr>
+            <tr><td>003</td><td>Shareholder List.xlsx</td><td>Alice Lee</td><td>2025-01-15 09:05:05</td><td><button class="link-btn">下載</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-attachment -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: eKYC RECORDS
+═══════════════════════════════════════ -->
+<div id="panel-ekyc" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">🪪</span> eKYC Records</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>Authentication Time</th><th>ID Card Video</th><th>ID Card Image</th><th>Selfie</th>
+            <th>OCR Information</th><th>Authentication result</th><th>Overall Score</th>
+            <th>Detailed Rating</th><th>Device Information</th><th>IP Address</th><th>GPS Information</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>2025-01-10 10:30:45</td>
+              <td><button class="link-btn">查看視頻</button></td>
+              <td><button class="link-btn">正面</button> <button class="link-btn">背面</button></td>
+              <td><button class="link-btn">查看</button></td>
+              <td style="font-size:12px;">王小明<br>H123456789<br>1985-03-15</td>
+              <td><span class="badge b-pass">Pass</span></td>
+              <td style="color:#389e0d;font-weight:600;">96.8</td>
+              <td style="font-size:11px;line-height:1.8;">人臉匹配: <b>96.2</b><br>文檔質量: <b>94.5</b><br>活體檢測: <b>97.1</b></td>
+              <td style="font-size:12px;"><b>iPhone 15 Pro</b><br>iOS 17.2.1</td>
+              <td>203.198.23.45</td>
+              <td style="font-size:11px;">中國香港 22.193,...</td>
+            </tr>
+            <tr>
+              <td>2025-01-12 14:22:15</td>
+              <td><button class="link-btn">查看視頻</button></td>
+              <td><button class="link-btn">正面</button> <button class="link-btn">背面</button></td>
+              <td><button class="link-btn">查看</button></td>
+              <td style="font-size:12px;">陳家偉<br>H987654321<br>1990-08-22</td>
+              <td><span class="badge b-attn">Attention</span></td>
+              <td style="color:#d48806;font-weight:600;">88.4</td>
+              <td style="font-size:11px;line-height:1.8;">人臉匹配: <b>89.2</b><br>文檔質量: <b>87.5</b><br>活體檢測: <b>92.1</b></td>
+              <td style="font-size:12px;"><b>Samsung Galaxy S24</b><br>Android 14</td>
+              <td>203.198.11.28</td>
+              <td style="font-size:11px;">中國香港 22.285,...</td>
+            </tr>
+            <tr>
+              <td>2025-01-15 09:00:05</td>
+              <td><button class="link-btn">查看視頻</button></td>
+              <td><button class="link-btn">正面</button> <button class="link-btn">背面</button></td>
+              <td><button class="link-btn">查看</button></td>
+              <td style="font-size:12px;">李小芳<br>H112233445<br>1988-12-01</td>
+              <td><span class="badge b-reject">Reject</span></td>
+              <td style="color:#cf1322;font-weight:600;">72.3</td>
+              <td style="font-size:11px;line-height:1.8;">人臉匹配: <b>70.2</b><br>文檔質量: <b>75.5</b><br>活體檢測: <b>73.1</b></td>
+              <td style="font-size:12px;"><b>iPhone 13</b><br>iOS 16.7</td>
+              <td>61.238.89.210</td>
+              <td style="font-size:11px;">中國香港 22.308,...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-ekyc -->
+
+
+<!-- ═══════════════════════════════════════
+     TAB: AUDIT LOG (Risk Assessment Records)
+═══════════════════════════════════════ -->
+<div id="panel-auditlog" class="tab-panel">
+  <div class="sec">
+    <div class="sec-hd"><div class="sec-title"><span class="sec-icon" style="color:#1677ff">📋</span> Risk Assessment Records</div></div>
+    <div class="sec-body">
+      <div class="dt-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>No.</th><th>Submission Time</th><th>Case Number</th><th>Case Type</th>
+            <th>Risk Rate</th><th>Total Score</th><th>Link</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>00001</td><td>2025-01-10 10:30</td><td class="mono">CA20250110000123</td>
+              <td><span class="badge b-ao">Account Opening</span></td>
+              <td><span class="badge b-med">Medium Risk</span></td>
+              <td>065</td>
+              <td><button class="link-btn">🔗 Detail</button></td>
+            </tr>
+            <tr>
+              <td>00002</td><td>2025-01-12 12:15</td><td class="mono">CA20250112000456</td>
+              <td><span class="badge b-pr">Periodic Review</span></td>
+              <td><span class="badge b-low">Low Risk</span></td>
+              <td>042</td>
+              <td><button class="link-btn">🔗 Detail</button></td>
+            </tr>
+            <tr>
+              <td>00003</td><td>2025-01-15 09:00</td><td class="mono">CA20250115000789</td>
+              <td><span class="badge b-te">Trigger Event</span></td>
+              <td><span class="badge b-high">High Risk</span></td>
+              <td>088</td>
+              <td><button class="link-btn">🔗 Detail</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><button class="pager-btn">‹</button><button class="pager-btn active">1</button><button class="pager-btn">›</button></div>
+    </div>
+  </div>
+</div><!-- /panel-auditlog -->
+
+
+</div><!-- /page-center -->
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('[id^="panel-"]').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

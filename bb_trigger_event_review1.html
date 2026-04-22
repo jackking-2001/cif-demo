@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BB Trigger Event Review</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-size: 13px; background: #f0f2f5; color: #1a1a18; line-height: 1.5; }
+
+/* ── Global Nav ── */
+.global-nav {
+  background: #fff; border-bottom: 1px solid #e4e4e4;
+  height: 46px; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 300;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.nav-title { font-size: 14px; font-weight: 600; color: #1a1a18; }
+.nav-right { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #666; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #1677ff; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* ── Shell ── */
+.shell { display: flex; height: calc(100vh - 46px); overflow: hidden; }
+
+/* ── Left sidebar ── */
+.sidebar {
+  width: 196px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid #e4e4e4; overflow-y: auto;
+  padding: 6px 0;
+}
+.sb-section-title { font-size: 11px; font-weight: 600; color: #999; padding: 8px 14px 3px; letter-spacing: .05em; }
+.sb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; font-size: 12px; color: #444; cursor: pointer;
+  border-left: 3px solid transparent; transition: all .1s;
+  text-decoration: none;
+}
+.sb-item:hover { background: #f0f5ff; color: #1677ff; }
+.sb-item.active { background: #e8f0fe; color: #1677ff; font-weight: 600; border-left-color: #1677ff; }
+.sb-num {
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 10px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  position: relative;
+}
+.n-blue { background: #1677ff; }
+.n-amber { background: #fa8c16; }
+.n-red { background: #cf1322; }
+.n-gray { background: #8c8c8c; }
+.n-teal { background: #13c2c2; }
+
+/* Connector line between numbered items — drawn as ::before on the num dot */
+.sb-item.has-line .sb-num::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5px;
+  /* gap between items is ~12px (6px padding top + 6px padding bottom), line fills that gap */
+  height: 12px;
+  background: #d9d9d9;
+}
+
+/* ── Main content ── */
+.main { flex: 1; min-width: 0; overflow-y: auto; padding: 14px 16px; }
+
+/* ── Right panel ── */
+.right-panel {
+  width: 272px; flex-shrink: 0; background: #fff;
+  border-left: 1px solid #e4e4e4; overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.rp-header {
+  padding: 9px 14px; border-bottom: 1px solid #e4e4e4;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px; font-weight: 600; background: #fafafa;
+  position: sticky; top: 0; z-index: 10; flex-shrink: 0;
+}
+.rp-transfer { font-size: 12px; color: #1677ff; cursor: pointer; display: flex; align-items: center; gap: 3px; font-weight: 400; }
+.rp-body { padding: 12px 14px; flex: 1; }
+
+/* ── Tags / Badges ── */
+.tag { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.tag-bb { background: #f0f5ff; color: #2f54eb; border: 1px solid #adc6ff; }
+.tag-stage { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+.tag-pending { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+.tag-blue { background: #e6f4ff; color: #0958d9; border: 1px solid #91caff; }
+.tag-green { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+.tag-gray { background: #fafafa; color: #595959; border: 1px solid #d9d9d9; }
+.tag-amber { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+.tag-purple { background: #f9f0ff; color: #531dab; border: 1px solid #d3adf7; }
+.tag-red { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+.risk-high { display: inline-flex; align-items: center; background: #cf1322; color: #fff; padding: 2px 10px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+.ns-tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 0px 5px; border-radius: 3px; background: #f9f0ff; color: #531dab; border: 1px solid #d3adf7; margin-left: 4px; vertical-align: middle; }
+
+/* ── Cards ── */
+.card { background: #fff; border: 1px solid #e4e4e4; border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+.card-hd {
+  padding: 8px 14px; background: #fafafa; border-bottom: 1px solid #e4e4e4;
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.card-hd-left { display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 12px 14px; }
+
+/* ── Case header ── */
+.case-id-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.case-id { font-size: 15px; font-weight: 700; color: #1a1a18; }
+.case-meta-grid { display: grid; grid-template-columns: repeat(5, auto); gap: 0 20px; margin-bottom: 10px; }
+.cm-item {}
+.cm-label { font-size: 10px; color: #999; }
+.cm-val { font-size: 12px; font-weight: 600; color: #1a1a18; }
+
+/* ── Progress bar ── */
+.prog-row { display: flex; align-items: flex-start; gap: 0; padding: 6px 0 2px; }
+.prog-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; position: relative; }
+.prog-step:not(:last-child)::after {
+  content: ''; position: absolute; top: 14px; left: calc(50% + 16px);
+  width: calc(100% - 32px); height: 2px; background: #e4e4e4;
+}
+.prog-step.ps-done:not(:last-child)::after { background: #52c41a; }
+.prog-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid #d9d9d9; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #bbb; flex-shrink: 0;
+  position: relative; z-index: 1;
+}
+.ps-done .prog-circle { background: #52c41a; border-color: #52c41a; color: #fff; }
+.ps-active .prog-circle { background: #1677ff; border-color: #1677ff; color: #fff; }
+.prog-label { font-size: 10px; color: #bbb; text-align: center; line-height: 1.3; white-space: nowrap; }
+.ps-done .prog-label { color: #52c41a; font-weight: 600; }
+.ps-active .prog-label { color: #1677ff; font-weight: 700; }
+.prog-sub { font-size: 9px; color: #bbb; text-align: center; }
+.ps-done .prog-sub { color: #52c41a; }
+.ps-active .prog-sub { color: #1677ff; }
+
+/* ── Trigger banner ── */
+.trigger-banner {
+  background: #fffbe6; border: 1px solid #ffe58f; border-left: 4px solid #faad14;
+  border-radius: 4px; padding: 9px 12px; margin-bottom: 10px;
+}
+.tb-title { font-size: 12px; font-weight: 700; color: #7c5300; margin-bottom: 4px; }
+.tb-events { display: flex; gap: 6px; flex-wrap: wrap; }
+.te-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fff; border: 1px solid #ffd591; border-radius: 3px;
+  padding: 2px 8px; font-size: 11px; color: #7c5300;
+}
+.te-dot { width: 5px; height: 5px; border-radius: 50%; background: #faad14; flex-shrink: 0; }
+
+/* ── Overview identity ── */
+.ov-identity {
+  display: flex; border-bottom: 1px solid #e4e4e4; border-left: 4px solid #cf1322;
+}
+.ov-cell { flex: 1; padding: 10px 14px; border-right: 1px solid #e4e4e4; }
+.ov-cell:last-child { border-right: none; display: flex; align-items: center; justify-content: flex-end; }
+.ov-l { font-size: 10px; color: #999; font-weight: 600; margin-bottom: 3px; letter-spacing: .04em; }
+.ov-v { font-size: 13px; font-weight: 700; color: #1a1a18; }
+
+/* ── Case info grid ── */
+.case-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 0; padding: 12px 14px; }
+.ci-item {}
+.ci-l { font-size: 10px; color: #999; margin-bottom: 2px; }
+.ci-v { font-size: 12px; font-weight: 600; color: #1a1a18; }
+
+/* ── Diff section header ── */
+.diff-sec-hd {
+  padding: 7px 14px; background: #f0f5ff; border-top: 1px solid #e4e4e4; border-bottom: 1px solid #d6e4ff;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; font-weight: 700; color: #1677ff; letter-spacing: .04em;
+}
+.diff-sec-hd:first-of-type { border-top: none; }
+
+/* ── Diff table ── */
+.diff-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.diff-table th {
+  padding: 7px 12px; background: #fafafa; color: #666;
+  font-size: 11px; font-weight: 600; text-align: left;
+  border-bottom: 1px solid #e4e4e4;
+}
+.diff-table td { padding: 8px 12px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; background: #fff; }
+.diff-table tr:last-child td { border-bottom: none; }
+
+/* Row states — only left border stripe, no row background */
+.diff-table tr.row-changed td:first-child { border-left: 3px solid #faad14; padding-left: 9px; }
+.diff-table tr.row-ns td:first-child { border-left: 3px solid #c41d7f; padding-left: 9px; }
+.diff-table tr.row-unch td:first-child { border-left: 3px solid transparent; }
+.diff-table tr:hover td { background: #f7f9ff; }
+
+/* Cell content */
+.f-name { font-size: 12px; font-weight: 600; color: #1a1a18; }
+.f-sub { font-size: 10px; color: #aaa; margin-top: 1px; }
+/* Original value: no strikethrough, clear dark color */
+.val-old { font-size: 12px; color: #1a1a18; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.val-unch { font-size: 12px; color: #595959; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Modified value input: red border + light red bg to indicate a changed value */
+input.di {
+  width: 100%; border: 1px solid #d9d9d9; border-radius: 4px;
+  padding: 4px 8px; font-size: 12px; font-family: inherit;
+  background: #fff; color: #1a1a18; outline: none; min-width: 100px;
+}
+input.di:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,.1); }
+/* Red highlight = value has been modified from original — text only, no border/bg change */
+input.di.mod { border-color: #d9d9d9; background: #fff; color: #cf1322; font-weight: 600; }
+input.di.mod:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,.1); }
+.sc { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.sc-ch { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+.sc-ns { background: #fff0f6; color: #c41d7f; border: 1px solid #ffadd2; }
+.sc-ok { background: #fafafa; color: #aaa; border: 1px solid #e4e4e4; }
+
+/* ── RP: stats ── */
+.rp-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.stat-b { background: #f5f7ff; border: 1px solid #e4e4e4; border-radius: 5px; padding: 7px 6px; text-align: center; }
+.stat-n { font-size: 20px; font-weight: 700; line-height: 1; }
+.stat-l { font-size: 10px; color: #888; margin-top: 2px; }
+.sn-a { color: #d46b08; } .sn-p { color: #531dab; } .sn-b { color: #1677ff; }
+
+/* ── RP: check rows ── */
+.chk-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+.chk-row:last-child { border-bottom: none; }
+.chk-st { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+.dot6 { width: 6px; height: 6px; border-radius: 50%; }
+.d-req { background: #fa8c16; } .d-ok { background: #52c41a; }
+.cs-req { color: #d46b08; } .cs-ok { color: #389e0d; }
+
+/* ── RP: buttons ── */
+.rp-btn { width: 100%; height: 30px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid; display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 5px; transition: all .1s; }
+.rb-pur { background: #f9f0ff; color: #531dab; border-color: #d3adf7; }
+.rb-pur:hover { background: #efdbff; }
+.rb-blue { background: #e6f4ff; color: #0958d9; border-color: #91caff; }
+.rb-blue:hover { background: #bae0ff; }
+.rb-ghost { background: #fff; color: #595959; border-color: #d9d9d9; }
+.rb-ghost:hover { background: #f5f5f5; }
+.rb-submit { background: #1677ff; color: #fff; border-color: #1677ff; height: 34px; font-size: 13px; }
+.rb-submit:hover { background: #0958d9; }
+.rb-success { background: #52c41a; color: #fff; border-color: #52c41a; height: 34px; font-size: 13px; }
+.rb-success:hover { background: #389e0d; }
+.rb-danger { color: #cf1322; border-color: #ffa39e; background: #fff; }
+.rb-danger:hover { background: #fff1f0; }
+.rp-btn-row { display: flex; gap: 5px; margin-bottom: 5px; }
+.rp-btn-row .rp-btn { margin-bottom: 0; }
+
+/* ── RP: approval opts ── */
+.ap-opt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border: 1px solid #d9d9d9; border-radius: 4px;
+  margin-bottom: 4px; cursor: pointer; font-size: 12px; transition: all .1s;
+}
+.ap-opt:hover { border-color: #91caff; background: #f0f5ff; }
+.ap-opt.sel { border-color: #91caff; background: #e6f4ff; font-weight: 600; color: #0958d9; }
+.ap-radio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #d9d9d9; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.ap-opt.sel .ap-radio { border-color: #1677ff; }
+.ap-opt.sel .ap-radio::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #1677ff; }
+
+/* ── RP: RFI ── */
+.rfi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.rfi-cat { border: 1px solid #e4e4e4; border-radius: 4px; padding: 7px 9px; cursor: pointer; transition: all .1s; }
+.rfi-cat:hover { border-color: #1677ff; background: #f0f5ff; }
+.rfi-cat.sel { border-color: #1677ff; background: #e6f4ff; }
+.rfi-cat-name { font-size: 11px; font-weight: 600; color: #0958d9; }
+.rfi-cat-count { font-size: 10px; color: #999; margin-top: 1px; }
+
+/* ── RP: textarea ── */
+textarea.rp-ta {
+  width: 100%; border: 1px solid #d9d9d9; border-radius: 4px;
+  padding: 7px 9px; font-size: 12px; font-family: inherit;
+  resize: vertical; min-height: 66px; outline: none; color: #1a1a18;
+}
+textarea.rp-ta:focus { border-color: #1677ff; }
+.char-c { font-size: 10px; color: #bbb; text-align: right; margin-top: 2px; }
+
+/* ── Misc ── */
+.divider { height: 1px; background: #f0f0f0; margin: 10px 0; }
+.rp-sec-title { font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; }
+.rp-step-no { font-size: 12px; font-weight: 600; color: #1a1a18; margin-bottom: 6px; }
+.filter-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #f5f7ff; border-bottom: 1px solid #e4e4e4; }
+.tog { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; cursor: pointer; user-select: none; }
+.tog-sw { width: 30px; height: 16px; background: #1677ff; border-radius: 8px; position: relative; }
+.tog-sw::after { content: ''; width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+</style>
+</head>
+<body>
+
+<!-- Global Nav -->
+<div class="global-nav">
+  <div class="nav-title">審批單管理</div>
+  <div class="nav-right">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="avatar">張</div>
+      <span>張三 (OPS Admin, RM Maker)</span>
+    </div>
+    <span style="color:#ddd">|</span>
+    <a href="#" style="color:#1677ff;text-decoration:none;font-size:12px">G 退出</a>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ── Sidebar (anchor nav) ── -->
+  <div class="sidebar">
+    <div class="sb-section-title">客戶資料</div>
+    <a class="sb-item active" href="#sec-trigger" data-target="sec-trigger">
+      <div class="sb-num n-blue" style="font-size:12px">⚡</div>
+      <span>Trigger Review</span>
+    </a>
+    <a class="sb-item" href="#sec-risk" data-target="sec-risk">
+      <div class="sb-num n-red">!</div>
+      <span>Risk Assessment</span>
+    </a>
+    <div class="sb-section-title" style="margin-top:4px">資料表單</div>
+    <a class="sb-item" href="#sec-1" data-target="sec-1"><div class="sb-num n-blue">1</div><span>Company Information</span></a>
+    <a class="sb-item has-line" href="#sec-2" data-target="sec-2"><div class="sb-num n-blue">2</div><span>Contact Details</span></a>
+    <a class="sb-item has-line" href="#sec-3" data-target="sec-3"><div class="sb-num n-blue">3</div><span>Business Background</span></a>
+    <a class="sb-item has-line" href="#sec-4" data-target="sec-4"><div class="sb-num n-blue">4</div><span>Financial Indicator</span></a>
+    <a class="sb-item has-line" href="#sec-5" data-target="sec-5"><div class="sb-num n-blue">5</div><span>Source of Wealth</span></a>
+    <a class="sb-item has-line" href="#sec-6" data-target="sec-6"><div class="sb-num n-blue">6</div><span>Anticipated Txn</span></a>
+    <a class="sb-item has-line" href="#sec-7" data-target="sec-7"><div class="sb-num n-amber">7</div><span>FATCA / CRS</span></a>
+    <a class="sb-item has-line" href="#sec-8" data-target="sec-8"><div class="sb-num n-amber">8</div><span>Company Change</span></a>
+    <a class="sb-item has-line" href="#sec-9" data-target="sec-9"><div class="sb-num n-blue">9</div><span>Connected Parties</span></a>
+    <a class="sb-item has-line" href="#sec-10" data-target="sec-10"><div class="sb-num n-gray">10</div><span>DD Account Info</span></a>
+    <div class="sb-section-title" style="margin-top:4px">BIB 設置</div>
+    <a class="sb-item" href="#sec-11" data-target="sec-11"><div class="sb-num n-teal">11</div><span>Register Company</span></a>
+    <a class="sb-item has-line" href="#sec-12" data-target="sec-12"><div class="sb-num n-teal">12</div><span>New Company User</span></a>
+    <a class="sb-item has-line" href="#sec-13" data-target="sec-13"><div class="sb-num n-gray">13</div><span>Txn Limits</span></a>
+    <a class="sb-item has-line" href="#sec-14" data-target="sec-14"><div class="sb-num n-gray">14</div><span>Auth Preferences</span></a>
+  </div>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Case header -->
+    <div class="card" id="sec-trigger">
+      <div class="card-body">
+        <div class="case-id-bar">
+          <span class="case-id">TEV-BB-20260418-000012</span>
+          <span class="tag tag-bb">BB</span>
+          <span class="tag tag-stage">RM 審核階段</span>
+          <span class="tag tag-pending">Pending RM Maker Claim</span>
+        </div>
+        <div class="case-meta-grid">
+          <div class="cm-item"><div class="cm-label">出售角色</div><div class="cm-val">OPS RM MAKER</div></div>
+          <div class="cm-item"><div class="cm-label">處理人</div><div class="cm-val">eob_rm_maker</div></div>
+          <div class="cm-item"><div class="cm-label">觸發時間</div><div class="cm-val">2026/4/18 09:22:05</div></div>
+          <div class="cm-item"><div class="cm-label">來源</div><div class="cm-val">HKEX 定期申報</div></div>
+          <div class="cm-item"><div class="cm-label">SLA 剩餘</div><div class="cm-val" style="color:#cf1322">1d 22h</div></div>
+        </div>
+
+        <!-- Progress -->
+        <div class="prog-row">
+          <div class="prog-step ps-done">
+            <div class="prog-circle">✓</div>
+            <div class="prog-label">Trigger<br>Received</div>
+            <div class="prog-sub">04/18 09:22</div>
+          </div>
+          <div class="prog-step ps-active">
+            <div class="prog-circle">2</div>
+            <div class="prog-label">RM Maker<br>Review</div>
+            <div class="prog-sub">進行中</div>
+          </div>
+          <div class="prog-step">
+            <div class="prog-circle" style="font-size:11px">3</div>
+            <div class="prog-label">Name<br>Screening</div>
+          </div>
+          <div class="prog-step">
+            <div class="prog-circle" style="font-size:11px">4</div>
+            <div class="prog-label">Risk<br>Scoring</div>
+          </div>
+          <div class="prog-step">
+            <div class="prog-circle" style="font-size:11px">5</div>
+            <div class="prog-label">RM<br>Checker</div>
+          </div>
+          <div class="prog-step">
+            <div class="prog-circle" style="font-size:11px">6</div>
+            <div class="prog-label">AML<br>Review</div>
+          </div>
+          <div class="prog-step">
+            <div class="prog-circle" style="font-size:16px;color:#bbb">✓</div>
+            <div class="prog-label">完成</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trigger banner -->
+    <div class="trigger-banner">
+      <div class="tb-title">⚠ 偵測到觸發事件 — 請審核以下客戶資料變更</div>
+      <div style="font-size:11px;color:#7c5300;margin-bottom:5px">客戶：ABC Trading Limited (BR: 12345678) · 風險等級：<span class="risk-high" style="font-size:10px;padding:1px 7px">HIGH</span> · 觸發來源：HKEX 公司注冊處定期申報</div>
+      <div class="tb-events">
+        <div class="te-chip"><div class="te-dot"></div>董事變更（新增 Lee Ka Fai）</div>
+        <div class="te-chip"><div class="te-dot"></div>股東持股結構重組</div>
+        <div class="te-chip"><div class="te-dot"></div>注冊地址更新</div>
+      </div>
+    </div>
+
+    <!-- Case Overview -->
+    <div class="card" id="sec-risk">
+      <div class="card-hd"><div class="card-hd-left">Case Overview</div></div>
+      <div class="ov-identity">
+        <div class="ov-cell">
+          <div class="ov-l">ID TYPE</div>
+          <div class="ov-v">BUSINESS REGISTRATION CERTIFICATE</div>
+        </div>
+        <div class="ov-cell">
+          <div class="ov-l">ID NUMBER</div>
+          <div class="ov-v">12345678</div>
+        </div>
+        <div class="ov-cell">
+          <div class="ov-l">COMPANY ENGLISH NAME</div>
+          <div class="ov-v">ABC Trading Limited</div>
+        </div>
+        <div class="ov-cell" style="flex:0 0 auto;padding:10px 14px">
+          <span class="risk-high" style="font-size:13px;padding:4px 14px">&#9650; HIGH</span>
+        </div>
+      </div>
+      <div class="case-info-grid">
+        <div class="ci-item"><div class="ci-l">Case No</div><div class="ci-v">TEV-BB-20260418-000012</div></div>
+        <div class="ci-item"><div class="ci-l">Case Type</div><div class="ci-v"><span class="tag tag-bb">BB</span> Trigger Event Review</div></div>
+        <div class="ci-item"><div class="ci-l">Case Content</div><div class="ci-v">Director / Shareholding Change</div></div>
+        <div class="ci-item"><div class="ci-l">Risk Level</div><div class="ci-v"><span class="risk-high">HIGH</span></div></div>
+        <div class="ci-item"><div class="ci-l">Case Stage</div><div class="ci-v"><span class="tag tag-stage">RM 審核階段</span></div></div>
+        <div class="ci-item"><div class="ci-l">Case Status</div><div class="ci-v"><span class="tag tag-pending">Pending RM Maker Claim</span></div></div>
+        <div class="ci-item"><div class="ci-l">Handler</div><div class="ci-v">eob_rm_maker</div></div>
+        <div class="ci-item"><div class="ci-l">Pending NS</div><div class="ci-v" style="color:#c41d7f;font-weight:700">Y</div></div>
+      </div>
+    </div>
+
+    <!-- Field Diff Card -->
+    <div class="card" id="sec-1">
+      <div class="card-hd">
+        <div class="card-hd-left">
+          <span>Field Change Review</span>
+          <span class="tag tag-amber">3 Changed</span>
+          <span class="tag tag-purple">1 NS Required</span>
+        </div>
+        <div class="tog">
+          <span style="font-size:11px;color:#666">Show changed only</span>
+          <div class="tog-sw"></div>
+        </div>
+      </div>
+
+      <!-- Section 1 -->
+      <div class="diff-sec-hd">
+        <span>1 · COMPANY INFORMATION</span>
+        <span style="display:flex;gap:6px"><span class="tag tag-amber" style="font-size:10px">2 changed</span></span>
+      </div>
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th style="width:200px">Field</th>
+            <th style="width:220px">Original Value</th>
+            <th>Modified Value</th>
+            <th style="width:96px">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-changed">
+            <td>
+              <div class="f-name">Registered Address</div>
+              <div class="f-sub">Required · Address Type A</div>
+            </td>
+            <td><span class="val-old">Unit 12, Central Plaza, HK</span></td>
+            <td><input class="di mod" type="text" value="Suite 8, One IFC, Central, HK"></td>
+            <td><span class="sc sc-ch">Changed</span></td>
+          </tr>
+          <tr class="row-changed">
+            <td>
+              <div class="f-name">Correspondence Address</div>
+              <div class="f-sub">Optional</div>
+            </td>
+            <td><span class="val-old">Same as registered</span></td>
+            <td><input class="di mod" type="text" value="GPO Box 1234, Central, HK"></td>
+            <td><span class="sc sc-ch">Changed</span></td>
+          </tr>
+          <tr class="row-unch">
+            <td>
+              <div class="f-name">Business Nature</div>
+              <div class="f-sub">Required · NACE Code</div>
+            </td>
+            <td><span class="val-unch">Import / Export Trade</span></td>
+            <td><input class="di" type="text" value="Import / Export Trade"></td>
+            <td><span class="sc sc-ok">Unchanged</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Section 2 -->
+      <div class="diff-sec-hd">
+        <span>9 · CONNECTED PARTIES</span>
+        <span style="display:flex;gap:6px">
+          <span class="tag tag-amber" style="font-size:10px">1 changed</span>
+          <span class="tag tag-purple" style="font-size:10px">1 NS required</span>
+        </span>
+      </div>
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th style="width:200px">Field</th>
+            <th style="width:220px">Original Value</th>
+            <th>Modified Value</th>
+            <th style="width:96px">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-ns">
+            <td>
+              <div class="f-name">Director Name <span class="ns-tag">NS</span></div>
+              <div class="f-sub">Individual · Director</div>
+            </td>
+            <td><span class="val-old">Chan Tai Man</span></td>
+            <td><input class="di mod" type="text" value="Lee Ka Fai"></td>
+            <td><span class="sc sc-ns">NS Required</span></td>
+          </tr>
+          <tr class="row-changed">
+            <td>
+              <div class="f-name">Shareholding %</div>
+              <div class="f-sub">Shareholding Structure</div>
+            </td>
+            <td><span class="val-old">Chan TM: 80%</span></td>
+            <td><input class="di mod" type="text" value="Lee KF: 65%, Chan TM: 15%"></td>
+            <td><span class="sc sc-ch">Changed</span></td>
+          </tr>
+          <tr class="row-unch">
+            <td>
+              <div class="f-name">Annual Turnover</div>
+              <div class="f-sub">Financial Indicator</div>
+            </td>
+            <td><span class="val-unch">HKD 5,000,000</span></td>
+            <td><input class="di" type="text" value="HKD 5,000,000"></td>
+            <td><span class="sc sc-ok">Unchanged</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <!-- Stub sections for anchor nav targets -->
+    <div class="card" id="sec-2"><div class="card-hd"><div class="card-hd-left"><span>2 · Contact Details</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-3"><div class="card-hd"><div class="card-hd-left"><span>3 · Company Business Background</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-4"><div class="card-hd"><div class="card-hd-left"><span>4 · Financial Indicator of Latest Fiscal Year</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-5"><div class="card-hd"><div class="card-hd-left"><span>5 · Source of Wealth / Fund</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-6"><div class="card-hd"><div class="card-hd-left"><span>6 · Anticipated Transaction &amp; Purpose of Usage</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-7"><div class="card-hd"><div class="card-hd-left"><span>7 · FATCA / CRS</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-8"><div class="card-hd"><div class="card-hd-left"><span>8 · Company Change</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-9"><div class="card-hd"><div class="card-hd-left"><span>9 · Details of Connected Parties</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-10"><div class="card-hd"><div class="card-hd-left"><span>10 · DD Account Information</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-11"><div class="card-hd"><div class="card-hd-left"><span>11 · Register New Company (BIB)</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-12"><div class="card-hd"><div class="card-hd-left"><span>12 · New Company User (BIB)</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-13"><div class="card-hd"><div class="card-hd-left"><span>13 · Set Transaction Limits (BIB)</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+    <div class="card" id="sec-14"><div class="card-hd"><div class="card-hd-left"><span>14 · Set Authorization Preferences (BIB)</span></div></div><div class="card-body" style="color:#aaa;font-size:12px;padding:20px 14px">（本頁 demo 暫不展示完整字段）</div></div>
+
+  </div><!-- /main -->
+
+  <!-- ── Right Panel ── -->
+  <div class="right-panel">
+    <div class="rp-header">
+      <span>審批操作</span>
+      <span class="rp-transfer">⇄ 轉讓</span>
+    </div>
+    <div class="rp-body">
+
+      <!-- Stats -->
+      <div class="rp-stats">
+        <div class="stat-b"><div class="stat-n sn-a">3</div><div class="stat-l">字段變更</div></div>
+        <div class="stat-b"><div class="stat-n sn-p">1</div><div class="stat-l">NS 待跑</div></div>
+        <div class="stat-b"><div class="stat-n sn-b" style="font-size:15px">1d22h</div><div class="stat-l">SLA餘量</div></div>
+      </div>
+
+      <!-- Checks -->
+      <div class="divider" style="margin-top:2px"></div>
+      <div class="rp-sec-title">CHECK 狀態</div>
+      <div class="chk-row">
+        <span>Name Screening</span>
+        <span class="chk-st cs-req"><div class="dot6 d-req"></div>待執行</span>
+      </div>
+      <div class="chk-row">
+        <span>Risk Scoring</span>
+        <span class="chk-st cs-req"><div class="dot6 d-req"></div>待重跑</span>
+      </div>
+      <div style="height:8px"></div>
+      <button class="rp-btn rb-pur">◈ Run Name Screening</button>
+      <button class="rp-btn rb-blue">◇ Re-run Risk Scoring</button>
+
+      <div class="divider"></div>
+
+      <!-- Action options -->
+      <div class="rp-step-no">1. 審批結果</div>
+      <div class="ap-opt sel" onclick="selectApproval(this)">
+        <div class="ap-radio"></div>
+        <span>Recommend Approval</span>
+      </div>
+      <div class="ap-opt" onclick="selectApproval(this)">
+        <div class="ap-radio"></div>
+        <span>Recommend Reject</span>
+      </div>
+      <div class="ap-opt" onclick="selectApproval(this)">
+        <div class="ap-radio"></div>
+        <span>Return</span>
+      </div>
+      <div class="ap-opt" onclick="selectApproval(this)">
+        <div class="ap-radio"></div>
+        <span>RFI (Request for Information)</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- RFI -->
+      <div class="rp-step-no">2. Select RFI Category</div>
+      <div class="rfi-grid">
+        <div class="rfi-cat sel" onclick="this.classList.toggle('sel')">
+          <div class="rfi-cat-name">上传证明材料</div>
+          <div class="rfi-cat-count">3 templates</div>
+        </div>
+        <div class="rfi-cat" onclick="this.classList.toggle('sel')">
+          <div class="rfi-cat-name">补充填写信息</div>
+          <div class="rfi-cat-count">5 templates</div>
+        </div>
+        <div class="rfi-cat" onclick="this.classList.toggle('sel')">
+          <div class="rfi-cat-name">负责人重认证</div>
+          <div class="rfi-cat-count">3 templates</div>
+        </div>
+        <div class="rfi-cat" onclick="this.classList.toggle('sel')">
+          <div class="rfi-cat-name">客户联系确认</div>
+          <div class="rfi-cat-count">3 templates</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Comment -->
+      <div class="rp-step-no">3. 審批意見</div>
+      <textarea class="rp-ta" placeholder="請輸入審批意見..." oninput="document.getElementById('cc').textContent=this.value.length+'/10000'"></textarea>
+      <div class="char-c" id="cc">0 / 10000</div>
+
+      <div class="divider"></div>
+
+      <!-- Attachment -->
+      <div class="rp-step-no">4. 附件（可選）</div>
+      <button class="rp-btn rb-ghost" style="border-style:dashed;margin-bottom:4px">⊕ 上傳附件（最多 60 個）</button>
+      <div style="font-size:10px;color:#bbb;line-height:1.5;margin-bottom:10px">支持 PDF、ZIP、EMR、MSG、JPG、PNG、DOC、DOCX、XLS、XLSX、CSV，單個文件 ≤ 32MB</div>
+
+      <div class="divider" style="margin-bottom:10px"></div>
+
+      <!-- Submit -->
+      <button class="rp-btn rb-success" style="width:100%;margin-bottom:6px">&#128190; Save Draft &nbsp;|&nbsp; ⚡ Risk Scoring</button>
+      <div class="rp-btn-row">
+        <button class="rp-btn rb-ghost" style="flex:1">↩ Rerun Name</button>
+        <button class="rp-btn rb-ghost" style="flex:1">⚡ Generate RSS</button>
+      </div>
+      <div style="height:6px"></div>
+      <button class="rp-btn rb-submit" style="width:100%;margin-bottom:0">提交審批 →</button>
+
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+function selectApproval(el) {
+  document.querySelectorAll('.ap-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── Anchor nav: smooth scroll + scroll-spy ──
+const navLinks = document.querySelectorAll('.sb-item[data-target]');
+const mainEl = document.querySelector('.main');
+
+// Click: smooth scroll to section
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.getElementById(link.dataset.target);
+    if (target) {
+      mainEl.scrollTo({ top: target.offsetTop - 12, behavior: 'smooth' });
+    }
+  });
+});
+
+// Scroll-spy: highlight nav item as sections enter viewport
+const sectionIds = Array.from(navLinks).map(l => l.dataset.target);
+const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+function setActive(id) {
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.dataset.target === id);
+  });
+}
+
+const observer = new IntersectionObserver(entries => {
+  // Find the topmost visible section
+  const visible = entries
+    .filter(e => e.isIntersecting)
+    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+  if (visible.length) setActive(visible[0].target.id);
+}, {
+  root: mainEl,
+  rootMargin: '-10% 0px -60% 0px',
+  threshold: 0
+});
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
