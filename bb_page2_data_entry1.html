@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BB Account Opening — 开户资料输入页（Section 0-16）</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-size: 13px; background: #f5f5f0; color: #1a1a18; line-height: 1.5; }
+
+  /* Left nav sidebar */
+  .page-layout { display: flex; min-height: 100vh; }
+  .left-nav { width: 200px; flex-shrink: 0; background: #fff; border-right: 1px solid #e0dfd8; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 12px 0; }
+  .left-nav-title { font-size: 11px; font-weight: 700; color: #888; letter-spacing: .06em; text-transform: uppercase; padding: 6px 14px 4px; }
+  .left-nav-item { display: flex; align-items: flex-start; gap: 8px; padding: 0 14px; cursor: pointer; }
+  .left-nav-item:hover .lni-label { color: #185fa5; }
+  .left-nav-item.active .lni-label { color: #185fa5; font-weight: 600; }
+  .left-nav-item.active .left-nav-num { box-shadow: 0 0 0 2px #185fa5; }
+  .lni-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 20px; }
+  .lni-line { width: 2px; background: #d0cfc8; flex: 1; min-height: 6px; margin: 2px 0; }
+  .left-nav-item.active .lni-line { background: #185fa5; }
+  .left-nav-num { width: 20px; height: 20px; border-radius: 50%; font-size: 10px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 4px 0; }
+  .lni-label { font-size: 12px; color: #555; padding: 4px 0; line-height: 1.3; transition: color 0.12s; }
+  .lnn-blue { background: #185fa5; }
+  .lnn-amber { background: #854f0b; }
+  .lnn-purple { background: #534ab7; }
+  .lnn-red { background: #a32d2d; }
+  .page-main { flex: 1; min-width: 0; }
+
+  /* Topbar */
+  .topbar { background: #fff; border-bottom: 1px solid #e0dfd8; padding: 10px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+  .back-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 1px solid #85b7eb; border-radius: 6px; background: #e6f1fb; color: #0c447c; font-size: 12px; cursor: pointer; text-decoration: none; }
+  .back-btn:hover { background: #cfe3f7; }
+  .page-title { font-size: 14px; font-weight: 600; color: #1a1a18; }
+  .topbar-right { margin-left: auto; font-size: 11px; color: #888; }
+
+  /* Content */
+  .content { padding: 16px 20px 100px; max-width: 1400px; margin: 0 auto; }
+
+  /* Section card */
+  .sec { background: #fff; border: 1px solid #e0dfd8; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .sec-hd { padding: 10px 16px; border-bottom: 1px solid #e0dfd8; display: flex; align-items: center; gap: 8px; background: #f7f7f5; }
+  .sec-num { width: 24px; height: 24px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .num-blue { background: #185fa5; }
+  .num-amber { background: #854f0b; }
+  .num-purple { background: #534ab7; }
+  .sec-title { font-size: 13px; font-weight: 600; color: #1a1a18; }
+  .sec-body { padding: 16px; }
+
+  /* Grid layouts */
+  .g1 { margin-bottom: 12px; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  /* Form fields */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field-label { font-size: 11px; color: #555; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .req { color: #d04020; font-size: 12px; }
+  .ns-badge { font-size: 9px; background: #e1f5ee; color: #085041; padding: 1px 5px; border-radius: 3px; font-weight: 600; border: 1px solid #9fe1cb; }
+  .cond-badge { font-size: 9px; background: #faeeda; color: #633806; padding: 1px 5px; border-radius: 3px; font-weight: 500; }
+  .only-badge { font-size: 9px; background: #eeedfe; color: #3c3489; padding: 1px 5px; border-radius: 3px; font-weight: 500; }
+
+  input[type="text"], input[type="email"], input[type="number"], select, textarea {
+    height: 32px;
+    border: 1px solid #c8c7bf;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #fff;
+    color: #1a1a18;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus, select:focus { border-color: #378add; box-shadow: 0 0 0 2px rgba(55,138,221,0.15); }
+  textarea { height: auto; padding: 8px 10px; resize: vertical; }
+  input[readonly], input.readonly { background: #f5f5f0; color: #888; cursor: not-allowed; }
+
+  /* Inline group (input + button side by side) */
+  .inline-group { display: flex; gap: 8px; align-items: flex-end; }
+  .inline-group input { flex: 1; }
+
+  /* Buttons */
+  .btn { height: 32px; padding: 0 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #c8c7bf; background: #fff; color: #1a1a18; transition: background 0.15s; }
+  .btn:hover { background: #f0efe8; }
+  .btn-teal { background: #1d9e75; color: #fff; border-color: #1d9e75; }
+  .btn-teal:hover { background: #0f6e56; }
+  .btn-blue { background: #185fa5; color: #fff; border-color: #185fa5; }
+  .btn-blue:hover { background: #0c447c; }
+  .btn-search { height: 32px; padding: 0 16px; background: #1d9e75; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn-search:hover { background: #0f6e56; }
+  .add-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1px solid #85b7eb; border-radius: 20px; font-size: 11px; color: #185fa5; cursor: pointer; background: #e6f1fb; margin-top: 6px; }
+  .add-btn:hover { background: #cfe3f7; }
+  .remove-btn { font-size: 11px; color: #a32d2d; cursor: pointer; padding: 2px 8px; border-radius: 20px; background: #fcebeb; border: 1px solid #f09595; }
+  .remove-btn:hover { background: #f7c1c1; }
+
+  /* Alerts / notes */
+  .alert-ok { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: #e1f5ee; border: 1px solid #5dcaa5; border-radius: 6px; font-size: 12px; color: #085041; margin-top: 10px; }
+  .alert-ok .icon { width: 16px; height: 16px; background: #1d9e75; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; font-size: 10px; font-weight: 700; }
+  .note-blue { font-size: 11px; color: #185fa5; background: #e6f1fb; border: 1px solid #85b7eb; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; }
+  .note-amber { font-size: 11px; color: #633806; background: #faeeda; border: 1px solid #fac775; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; }
+  .note-warn-inline { font-size: 10px; color: #854f0b; background: #faeeda; border-radius: 4px; padding: 2px 6px; margin-top: 3px; }
+
+  /* Sub labels */
+  .sub-label { font-size: 11px; font-weight: 600; color: #0c447c; background: #e6f1fb; padding: 5px 12px; border-radius: 6px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #b5d4f4; }
+  .sub-label-sm { font-size: 11px; font-weight: 600; color: #555; margin-bottom: 8px; margin-top: 12px; }
+  .divider { height: 1px; background: #e0dfd8; margin: 14px 0; }
+
+  /* Multi-item card */
+  .multi-item { border: 1px solid #e0dfd8; border-radius: 8px; padding: 12px; margin-bottom: 8px; background: #f9f9f7; }
+  .multi-item-hd { font-size: 11px; font-weight: 600; color: #555; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Party card */
+  .party-card { border: 1px solid #afa9ec; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .party-hd { padding: 8px 12px; background: #eeedfe; display: flex; align-items: center; justify-content: space-between; }
+  .party-name { font-size: 12px; font-weight: 600; color: #3c3489; }
+  .party-body { padding: 12px; }
+
+  /* Checkbox row */
+  .check-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; height: 32px; }
+  .check-item { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
+  .check-item input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #185fa5; }
+
+  /* Tag */
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 20px; font-size: 11px; background: #e6f1fb; color: #0c447c; border: 1px solid #85b7eb; margin: 2px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 6px; }
+
+  /* Signature table */
+  .sig-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sig-table th { padding: 6px 10px; background: #f7f7f5; font-size: 11px; font-weight: 600; color: #555; text-align: left; border-bottom: 1px solid #e0dfd8; }
+  .sig-table td { padding: 7px 10px; border-bottom: 1px solid #e0dfd8; }
+  .sig-table tr:last-child td { border-bottom: none; }
+
+  /* ── SOF/SOW pill/tag multi-select ── */
+.sof-wrap { margin-bottom: 0; }
+.sof-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.sof-pill { display: inline-flex; align-items: center; padding: 4px 12px; border: 1px solid #c8c7bf; border-radius: 20px; font-size: 12px; color: #555; cursor: pointer; background: #fff; transition: all 0.12s; user-select: none; white-space: nowrap; }
+.sof-pill:hover { border-color: #85b7eb; color: #185fa5; background: #f0f6fc; }
+.sof-pill.sof-checked { border-color: #185fa5; background: #e6f1fb; color: #0c447c; font-weight: 600; }
+.sof-pill input[type="checkbox"] { display: none; }
+.sof-other { display: none; margin-top: 8px; }
+.sof-other.show { display: block; }
+
+/* Sticky footer */
+  .footer { background: #fff; border-top: 1px solid #e0dfd8; padding: 12px 20px; display: flex; gap: 10px; justify-content: flex-end; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
+
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.g1 { margin-bottom: 10px; }
+.note-blue { font-size: 11px; color: #185fa5; background: #e6f1fb; border: 1px solid #85b7eb; border-radius: 6px; padding: 6px 12px; margin-bottom: 10px; }
+.num-amber { background: #854f0b; }
+.num-purple { background: #534ab7; }
+</style>
+</head>
+<body>
+
+<div class="page-layout">
+
+<!-- Left Navigation -->
+<nav class="left-nav" id="left-nav">
+  <div class="left-nav-title">章節導航</div>
+  <div class="left-nav-item" onclick="scrollToSec(0)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">0</span><div class="lni-line"></div></div>
+    <span class="lni-label">查询公司注册资料</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(1)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">1</span><div class="lni-line"></div></div>
+    <span class="lni-label">Company Information</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(2)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">2</span><div class="lni-line"></div></div>
+    <span class="lni-label">Contact Details</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(3)">
+    <div class="lni-left"><span class="left-nav-num lnn-amber">3</span><div class="lni-line"></div></div>
+    <span class="lni-label">Company Business Background</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(4)">
+    <div class="lni-left"><span class="left-nav-num lnn-amber">4</span><div class="lni-line"></div></div>
+    <span class="lni-label">Financial Indicator of Latest Fiscal Year</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(5)">
+    <div class="lni-left"><span class="left-nav-num lnn-amber">5</span><div class="lni-line"></div></div>
+    <span class="lni-label">Source of Wealth / Fund</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(6)">
+    <div class="lni-left"><span class="left-nav-num lnn-amber">6</span><div class="lni-line"></div></div>
+    <span class="lni-label">Anticipated Transaction & Purpose of Usage</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(7)">
+    <div class="lni-left"><span class="left-nav-num lnn-purple">7</span><div class="lni-line"></div></div>
+    <span class="lni-label">FATCA / CRS</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(8)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">8</span><div class="lni-line"></div></div>
+    <span class="lni-label">Company Change</span>
+  </div>
+  <div class="left-nav-item" onclick="document.getElementById('tu-company-search').scrollIntoView({behavior:'smooth',block:'start'})">
+    <div class="lni-left">
+      <span class="left-nav-num lnn-blue" style="font-size:8px;letter-spacing:-0.5px">TU</span>
+      <div class="lni-line"></div>
+    </div>
+    <span class="lni-label">Company Search</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(9)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">9</span><div class="lni-line"></div></div>
+    <span class="lni-label">Company Secretary Information</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(10)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">10</span><div class="lni-line"></div></div>
+    <span class="lni-label">Details of Connected Parties</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(11)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">11</span><div class="lni-line"></div></div>
+    <span class="lni-label">DD Account Information</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(12)">
+    <div class="lni-left"><span class="left-nav-num lnn-blue">12</span><div class="lni-line"></div></div>
+    <span class="lni-label">Signing Arrangement</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(13)">
+    <div class="lni-left"><span class="left-nav-num lnn-purple">13</span><div class="lni-line"></div></div>
+    <span class="lni-label">Register New Company</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(14)">
+    <div class="lni-left"><span class="left-nav-num lnn-purple">14</span><div class="lni-line"></div></div>
+    <span class="lni-label">New Company User</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(15)">
+    <div class="lni-left"><span class="left-nav-num lnn-purple">15</span><div class="lni-line"></div></div>
+    <span class="lni-label">Set Transaction Limits</span>
+  </div>
+  <div class="left-nav-item" onclick="scrollToSec(16)">
+    <div class="lni-left"><span class="left-nav-num lnn-purple">16</span></div>
+    <span class="lni-label">Set Authorization Preferences</span>
+  </div>
+</nav>
+
+<div class="page-main">
+<div class="topbar">
+  <a class="back-btn" href="#">← Back</a>
+  <span class="page-title">New Account Opening</span>
+  <span class="topbar-right" style="display:flex;align-items:center;gap:8px;">
+    <button onclick="fillTestData()" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;height:28px;border:1px solid #e9a825;border-radius:5px;background:#fffbf0;color:#854f0b;font-size:12px;font-weight:600;cursor:pointer;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      填入測試數據
+    </button>
+    <button onclick="expandAll()" style="padding:4px 10px;height:28px;border:1px solid #c8c7bf;border-radius:5px;background:#fff;color:#555;font-size:12px;cursor:pointer;">展開全部</button>
+    <button onclick="collapseAll()" style="padding:4px 10px;height:28px;border:1px solid #c8c7bf;border-radius:5px;background:#fff;color:#555;font-size:12px;cursor:pointer;">折疊全部</button>
+    <span style="font-size:11px;color:#888;padding-left:4px;">草稿已保存 14:32</span>
+  </span>
+</div>
+
+<div class="content">
+
+<!-- Section 0 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">0</div>
+    <span class="sec-title">查询公司注册资料（HKCR / IRD）</span>
+  </div>
+  <div class="sec-body">
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">证书类型（Document Type）<span class="req">*</span></label>
+        <select id="tu-doc-type">
+          <option value="BR">BR（Business Registration）</option>
+          <option value="CI">CI（Certificate of Incorporation）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">证书号码（Document Number）<span class="req">*</span></label>
+        <div class="inline-group">
+          <input type="text" id="tu-doc-number" value="7546205" placeholder="輸入證書號碼">
+          <button class="btn-search" id="tu-search-btn" onclick="runTUSearch()">搜索</button>
+        </div>
+      </div>
+    </div>
+    <div id="tu-loading" style="display:none;margin-top:10px;padding:8px 12px;background:#e6f1fb;border:1px solid #85b7eb;border-radius:6px;font-size:12px;color:#185fa5">
+      ⏳ 正在查詢 HKCR / IRD，請稍候...
+    </div>
+    <div id="tu-error" style="display:none;margin-top:10px;padding:8px 12px;background:#fff5f5;border:1px solid #f09595;border-radius:6px;font-size:12px;color:#a32d2d"></div>
+    <div id="tu-alert-ok" class="alert-ok" style="display:none;margin-top:10px">
+      <div class="icon">✓</div>
+      公司資料已獲取，字段已自動反顯至 Section 1，TU 查詢結果已顯示在「Company Search」模塊中
+    </div>
+  </div>
+</div>
+
+<!-- Section 1 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">1</div>
+    <span class="sec-title">Company Information</span>
+  </div>
+  <div class="sec-body">
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Company Type <span class="req">*</span></label>
+        <select>
+          <option>CO - Limited Company (Unlisted)</option>
+          <option>LC - Limited Company (Listed)</option>
+          <option>SP - Sole Proprietorship</option>
+          <option>PA - Partnership</option>
+          <option>TR - Trust</option>
+          <option>FI - Financial Institution</option>
+          <option>GO - Government Department</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">ID Type <span class="req">*</span><span class="ns-badge">NS</span></label>
+        <select>
+          <option>BUSINESS REGISTRATION CERTIFICATE</option>
+          <option>CERTIFICATE OF INCORPORATION</option>
+          <option>Others</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">ID Number <span class="req">*</span><span class="ns-badge">NS</span></label>
+        <input type="text" value="7546205">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Company English Name <span class="req">*</span><span class="ns-badge">NS</span></label>
+        <input type="text" value="AUTOTEST&RmCompany46053">
+      </div>
+      <div class="field">
+        <label class="field-label">Company Chinese Name <span class="ns-badge">NS</span></label>
+        <input type="text" value="自动化测试RM公司6122">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Company Establish Date <span class="req">*</span><span class="ns-badge">NS</span></label>
+        <input type="text" value="20200101" placeholder="YYYYMMDD">
+      </div>
+      <div class="field">
+        <label class="field-label">Country of Registration <span class="req">*</span></label>
+        <select>
+          <option>HKG - Hong Kong</option>
+          <option>CHN - China</option>
+          <option>USA - United States</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Channel <span class="req">*</span></label>
+        <select>
+          <option>W - Walk-in</option>
+          <option>A - Approved Partner Referral</option>
+          <option>B - RM Referral</option>
+          <option>I - Internal</option>
+          <option>O - Solely E-Onboarding</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Usage of products <span class="req">*</span></label>
+        <select>
+          <option value="1">1 - Low Risk Product Only</option>
+          <option value="2">2 - At Least One Medium Risk Product</option>
+          <option value="3">3 - At Least One High Risk Product</option>
+        </select>
+      </div>
+    </div>
+    <div class="g4">
+      <div class="field">
+        <label class="field-label">Listing Company</label>
+        <select><option>N - No</option><option>Y - Yes</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">High Tax Evasion Risk <span class="req">*</span></label>
+        <select><option>N - No</option><option>Y - Yes</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">Bearer Shares Issued <span class="req">*</span></label>
+        <select><option>N - No</option><option>Y - Yes</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">Classify <span class="req">*</span></label>
+        <select><option>Normal</option><option>High Risk</option></select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Internal Client Type</label>
+        <select><option>请选择</option><option>Staff</option><option>Management</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">Whether board resolution obtained <span class="req">*</span></label>
+        <select><option>Y - Yes</option><option>N - No</option></select>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="sub-label">Trading Name（英文）<span class="ns-badge">NS</span> <span style="font-size:10px;color:#888;font-weight:400">最多 10 个</span></div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Trading Name #1</span><button class="remove-btn">删除</button></div>
+      <div class="g2">
+        <div class="field">
+          <label class="field-label">English Name <span class="ns-badge">NS</span></label>
+          <input type="text" value="AUTOTEST Trading HK">
+        </div>
+        <div class="field">
+          <label class="field-label">Chinese Name <span class="ns-badge">NS</span></label>
+          <input type="text" placeholder="中文营业名称（选填）">
+        </div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Trading Name</button>
+    <div class="divider"></div>
+    <div class="sub-label">Registered Address <span style="font-size:10px;color:#888;font-weight:400;">（格式：Room + Floor + Building + Street + City + Province + Country）</span></div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">室/單位 Room</label>
+        <div class="inline-group">
+          <select style="width:80px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+          <input type="text" placeholder="号码" style="flex:1" maxlength="35">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">樓層 Floor</label>
+        <div class="inline-group">
+          <input type="text" placeholder="3" maxlength="35" style="flex:1">
+          <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;">/F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">座/期/大廈/屋苑 Building</label>
+        <input type="text" placeholder="Dai Fu St, Tai Po Industrial Estate" maxlength="70">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">街號街道 Street <span class="req">*</span></label>
+        <input type="text" placeholder="IT STREET" maxlength="70">
+      </div>
+      <div class="field">
+        <label class="field-label">區域 City</label>
+        <select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option><option>Mong Kok</option><option>Sha Tin</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">省份 Province</label>
+        <select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+        <select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select>
+      </div>
+    </div>
+
+    <div class="sub-label">Operation Address <span class="req">*</span> <span style="font-size:10px;color:#888;font-weight:400">（Room + Floor + Building + Street + City + Province + Country）</span></div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">室/單位 Room</label>
+        <div class="inline-group">
+          <select style="width:80px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+          <input type="text" placeholder="" maxlength="35" style="flex:1">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">樓層 Floor</label>
+        <div class="inline-group">
+          <input type="text" placeholder="" maxlength="35" style="flex:1">
+          <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;">/F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">座/期/大廈/屋苑 Building</label>
+        <input type="text" placeholder="" maxlength="70">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">街號街道 Street <span class="req">*</span></label>
+        <input type="text" placeholder="" maxlength="70">
+      </div>
+      <div class="field">
+        <label class="field-label">區域 City</label>
+        <select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option><option>Mong Kok</option><option>Sha Tin</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">省份 Province</label>
+        <select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+        <select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option><option>SGP - Singapore</option></select>
+      </div>
+    </div>
+    <div class="sub-label">Mailing Address <span class="req">*</span> <span style="font-size:10px;color:#888;font-weight:400">（Room + Floor + Building + Street + City + Province + Country）</span></div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">室/單位 Room</label>
+        <div class="inline-group">
+          <select style="width:80px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+          <input type="text" placeholder="" maxlength="35" style="flex:1">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">樓層 Floor</label>
+        <div class="inline-group">
+          <input type="text" placeholder="" maxlength="35" style="flex:1">
+          <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;">/F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">座/期/大廈/屋苑 Building</label>
+        <input type="text" placeholder="" maxlength="70">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">街號街道 Street <span class="req">*</span></label>
+        <input type="text" placeholder="" maxlength="70">
+      </div>
+      <div class="field">
+        <label class="field-label">區域 City</label>
+        <select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option><option>Mong Kok</option><option>Sha Tin</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">省份 Province</label>
+        <select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+        <select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option><option>SGP - Singapore</option></select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Declaration of registered address and business address</label>
+        <select>
+          <option value="">请选择</option>
+          <option value="1">1 - Registered or business address is a company secretarial firm address</option>
+          <option value="2">2 - Both registered and business addresses are company secretarial firm addresses</option>
+          <option value="3">3 - Registered or business address is a residential address</option>
+          <option value="4">4 - Both registered and business addresses are residential addresses</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Reason <span class="cond-badge">Declaration 選填時填寫</span></label>
+        <textarea rows="2" placeholder="对上述地址声明的原因说明（CHAR 500）" maxlength="500"></textarea>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-label">Old Company Name（過去5年曾用名）<span class="ns-badge">NS</span> <span style="font-size:10px;color:#888;font-weight:400">最多 10 個</span></div>
+    <div id="old-name-list">
+      <div class="multi-item old-name-row">
+        <div class="multi-item-hd"><span>Old Company Name #1</span><button class="remove-btn" onclick="this.closest('.old-name-row').remove()">删除</button></div>
+        <div class="g2">
+          <div class="field"><label class="field-label">English Name <span class="ns-badge">NS</span></label><input type="text" placeholder="过去公司英文名称" maxlength="60"></div>
+          <div class="field"><label class="field-label">Chinese Name <span class="ns-badge">NS</span></label><input type="text" placeholder="过去公司中文名称" maxlength="60"></div>
+        </div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addOldName()">+ 新增 Old Company Name</button>
+
+  </div>
+</div>
+
+<!-- Section 2 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">2</div>
+    <span class="sec-title">Contact Details</span>
+  </div>
+  <div class="sec-body">
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Contact Person First Name <span class="req">*</span></label>
+        <input type="text" placeholder="联系人名字" maxlength="30">
+      </div>
+      <div class="field">
+        <label class="field-label">Contact Person Last Name <span class="req">*</span></label>
+        <input type="text" placeholder="联系人姓氏" maxlength="30">
+      </div>
+      <div class="field">
+        <label class="field-label">Email Address <span class="req">*</span></label>
+        <input type="email" placeholder="电子邮件" maxlength="34">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Job Title <span class="req">*</span></label>
+        <select>
+          <option value="">请选择</option>
+          <option value="01">01 - 董事</option><option value="02">02 - 商人</option>
+          <option value="03">03 - 東主</option><option value="04">04 - 總經理</option>
+          <option value="05">05 - 行政人員</option><option value="06">06 - 高級行政人員</option>
+          <option value="07">07 - 財務總監</option><option value="08">08 - 秘書</option>
+          <option value="09">09 - 其他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Other Job Title <span class="cond-badge">Job Title = 09 時必填</span></label>
+        <input type="text" placeholder="其他联系人头衔" maxlength="30">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Telephone Area Code <span class="req">*</span></label>
+        <select>
+          <option value="852">852 - 香港</option>
+          <option value="86">86 - 中国大陆</option>
+          <option value="84">84 - 越南</option>
+          <option value="1">1 - 美国</option>
+          <option value="44">44 - 英国</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Telephone Number <span class="req">*</span></label>
+        <input type="text" placeholder="电话号码" maxlength="18">
+      </div>
+      <div class="field">
+        <label class="field-label">Office Telephone Number</label>
+        <input type="text" placeholder="办事处电话（选填）" maxlength="18">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Fax Number</label>
+        <input type="text" placeholder="传真号码（选填）" maxlength="18">
+      </div>
+      <div class="field">
+        <label class="field-label">Company Website</label>
+        <input type="text" placeholder="公司网页（选填）" maxlength="120">
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="sub-label">Contact Address <span style="font-size:10px;color:#888;font-weight:400;">（Room + Floor + Building + Street + City + Province + Country）</span></div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">室/單位 Room</label>
+        <div class="inline-group">
+          <select style="width:80px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+          <input type="text" placeholder="505" maxlength="35" style="flex:1">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">樓層 Floor</label>
+        <div class="inline-group">
+          <input type="text" placeholder="3" maxlength="35" style="flex:1">
+          <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;">/F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">座/期/大廈/屋苑 Building</label>
+        <input type="text" placeholder="Wanchai Tower" maxlength="70">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">街號街道 Street <span class="req">*</span></label>
+        <input type="text" placeholder="12 Harbour Road" maxlength="70">
+      </div>
+      <div class="field">
+        <label class="field-label">區域 City</label>
+        <select><option>Wanchai, Hong Kong Island</option><option>Central</option><option>Tsim Sha Tsui</option><option>Mong Kok</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label">省份 Province</label>
+        <select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+        <select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option></select>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Group CIF Number</label>
+        <input type="text" placeholder="集团客户号码（选填）" maxlength="12">
+      </div>
+      <div class="field">
+        <label class="field-label">Group CIF Name</label>
+        <input type="text" placeholder="集团名称（选填）" maxlength="120">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-amber">3</div>
+    <span class="sec-title">Company Business Background</span>
+  </div>
+  <div class="sec-body">
+    <div class="g3">
+      <div class="field"><label class="field-label">Office Location(s)</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>SGP - Singapore</option></select></div>
+      <div class="field"><label class="field-label">Principal Place of Operations <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select></div>
+      <div class="field"><label class="field-label">Whether WEB3 Company <span class="req">*</span></label><select><option>N - No</option><option>Y - Yes</option></select></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Whether Greater China Company <span class="req">*</span></label><select><option>N - No</option><option>Y - Yes</option></select></div>
+      <div class="field"><label class="field-label">Is your Company a Holding Company</label><select><option>N - No</option><option>Y - Yes</option></select></div>
+      <div class="field"><label class="field-label">Financial Background</label><select><option value="">请选择</option><option value="1170">1170 - PRIVATE-OWNED</option><option value="1110">1110 - STATE-OWNED</option><option value="1120">1120 - COLLECTIVELY-OWNED</option><option value="1140">1140 - JOINT OPERATION</option><option value="1160">1160 - JOINT STOCK</option><option value="1175">1175 - INDIVIDUAL-OWNED</option><option value="1200">1200 - FOREIGN CAPITAL</option><option value="1330">1330 - HK/MACAU/TAIWAN CAPITAL</option><option value="9999">9999 - OTHERS</option></select></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Industry Category <span class="req">*</span></label><select><option value="">请选择行业大类</option><option>Trading（贸易）</option><option>Manufacturing（制造）</option><option>Finance（金融）</option><option>Services（服务）</option><option>Property（地产）</option><option>Technology（科技）</option></select></div>
+      <div class="field"><label class="field-label">Key Products / Services <span class="req">*</span></label><input type="text" placeholder="行业小类/主要产品与服务" maxlength="120"></div>
+      <div class="field"><label class="field-label">Industry Category 2</label><select><option value="">第二行业（选填）</option><option>Trading（贸易）</option><option>Manufacturing（制造）</option><option>Finance（金融）</option><option>Services（服务）</option></select></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Key Products / Services 2 <span class="cond-badge">Industry Category 2 填写时</span></label><input type="text" placeholder="第二行业小类（选填）" maxlength="120"></div>
+      <div class="field"><label class="field-label">Name of Regulatory Body</label><input type="text" placeholder="监管机构名称（选填）" maxlength="120"></div>
+      <div class="field"><label class="field-label">Regulatory Reference Number</label><input type="text" placeholder="监管机构参考编号" maxlength="30"></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Country of Regulatory Body</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-label">Countries of Foreign Branch(es) / Subsidiary(ies) / Factory(ies) <span style="font-size:10px;color:#888;font-weight:400">最多 10 個</span></div>
+    <div id="branch-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+      <div class="branch-row" style="display:flex;gap:6px;align-items:center;">
+        <select style="flex:1;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option>HKG</option><option>CHN</option><option>USA</option><option>GBR</option><option>SGP</option></select>
+        <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+      </div>
+    </div>
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:6px;" onclick="addSimpleCountryRow('branch-list','branch-row')">+ 新增國家</span>
+
+    <div class="divider"></div>
+    <div class="sub-label">Country of Key Counterparties <span style="font-size:10px;color:#888;font-weight:400">最多 5 個</span></div>
+    <div id="counterparty-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+      <div class="counterparty-row" style="display:flex;gap:6px;align-items:center;">
+        <select style="flex:1;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option>HKG</option><option>CHN</option><option>USA</option><option>GBR</option><option>SGP</option></select>
+        <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+      </div>
+    </div>
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:6px;" onclick="addSimpleCountryRow('counterparty-list','counterparty-row')">+ 新增國家</span>
+
+    <div class="divider"></div>
+    <div class="sub-label">Employees（Country of Employee + Number of Employee）<span style="font-size:10px;color:#888;font-weight:400">最多 5 組</span></div>
+    <div id="employee-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+      <div class="employee-row" style="display:flex;gap:6px;align-items:center;">
+        <select style="flex:2;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select>
+        <input type="number" min="0" placeholder="人數" style="width:80px;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+        <span style="font-size:11px;color:#888;">人</span>
+        <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+      </div>
+    </div>
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:6px;" onclick="addEmployeeRow()">+ 新增僱員國家</span>
+
+    <div class="divider"></div>
+    <div class="g3">
+      <div class="field" style="grid-column:span 3;">
+        <label class="field-label">Countries of Supplier <span class="req">*</span>
+          <span style="font-size:9px;color:#888;font-weight:400;">（各國百分比累計，高風險≥20% → High；高風險10-20% → Medium）</span>
+        </label>
+        <div id="supplier-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+          <div class="supplier-row" style="display:flex;gap:6px;align-items:center;">
+            <select style="flex:1.5;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option value="HKG-Low">HKG - Hong Kong（Low）</option><option value="CHN-Low">CHN - China（Low）</option><option value="IND-Medium">IND - India（Medium）</option><option value="TCD-Medium" selected>TCD - Chad（Medium）</option><option value="IRQ-High">IRQ - Iraq（High）</option><option value="BLR-High">BLR - Belarus（High）</option></select>
+            <input type="text" style="flex:2;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;" placeholder="Company Name of Supplier">
+            <input type="number" min="0" max="100" value="20" style="width:64px;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;" placeholder="%">
+            <span style="font-size:11px;color:#888;">%</span>
+            <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;" onclick="addCountryRow('supplier-list','supplier-row')">+ 新增國家</span>
+          <span id="supplier-risk-tag" style="font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:#faeeda;color:#633806;border:1px solid #fac775;">中風險（累計計算）</span>
+        </div>
+      </div>
+      <div class="field" style="grid-column:span 3;">
+        <label class="field-label">Countries of Buyer <span class="req">*</span>
+          <span style="font-size:9px;color:#888;font-weight:400;">（各國百分比累計，高風險≥20% → High）</span>
+        </label>
+        <div id="buyer-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+          <div class="buyer-row" style="display:flex;gap:6px;align-items:center;">
+            <select style="flex:1.5;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option value="HKG-Low">HKG - Hong Kong（Low）</option><option value="CHN-Low">CHN - China（Low）</option><option value="IND-Medium">IND - India（Medium）</option><option value="IRQ-High" selected>IRQ - Iraq（High）</option><option value="BLR-High">BLR - Belarus（High）</option></select>
+            <input type="text" style="flex:2;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;" placeholder="Company Name of Buyer">
+            <input type="number" min="0" max="100" value="20" style="width:64px;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;" placeholder="%">
+            <span style="font-size:11px;color:#888;">%</span>
+            <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;" onclick="addCountryRow('buyer-list','buyer-row')">+ 新增國家</span>
+          <span id="buyer-risk-tag" style="font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:#fcebeb;color:#791f1f;border:1px solid #f09595;">高風險（累計計算）</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="field"><label class="field-label">Annual Sales Turnover <span class="req">*</span></label><select><option>请选择</option><option>Below HKD 1M</option><option>HKD 1M-5M</option><option>HKD 5M-10M</option><option>Above HKD 10M</option></select></div>
+      <div class="field"><label class="field-label">Number of Employees <span class="req">*</span></label><select><option>请选择</option><option>1-10</option><option>11-50</option><option>51-200</option><option>Above 200</option></select></div>
+      <div class="field"><label class="field-label">Referral Party <span class="cond-badge">RM Referral 时必填</span></label><input type="text" placeholder="推荐方名称" maxlength="60"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-amber">4</div>
+    <span class="sec-title">Financial Indicator of Latest Fiscal Year</span>
+  </div>
+  <div class="sec-body">
+    <div class="g3">
+      <div class="field"><label class="field-label">Annual Business Turnover (HKD) <span class="req">*</span></label><input type="text" placeholder="全年营业额（等值港币）" maxlength="20"></div>
+      <div class="field"><label class="field-label">Asset Size (HKD)</label><input type="text" placeholder="资产规模（选填）" maxlength="20"></div>
+      <div class="field"><label class="field-label">Net Profit (HKD)</label><input type="text" placeholder="净利润（选填）" maxlength="20"></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Fiscal Year End <span class="req">*</span></label><input type="text" placeholder="MM/DD（如 12/31）"></div>
+      <div class="field"><label class="field-label">Currency <span class="req">*</span></label><select><option>HKD</option><option>USD</option><option>CNY</option><option>EUR</option><option>GBP</option></select></div>
+      <div class="field"><label class="field-label">Others (Please Specify)</label><input type="text" placeholder="其他财务补充说明（选填）" maxlength="200"></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-label">Countries of Which Assets Held <span class="req">*</span> <span style="font-size:10px;color:#888;font-weight:400">（Country + 占比%，最多 10 個）</span></div>
+    <div id="assets-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+      <div class="assets-row" style="display:flex;gap:6px;align-items:center;">
+        <select style="flex:2;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"><option value="">選擇國家</option><option value="HKG" selected>HKG - Hong Kong</option><option value="CHN">CHN - China</option><option value="USA">USA - United States</option><option value="GBR">GBR - United Kingdom</option><option value="SGP">SGP - Singapore</option></select>
+        <input type="number" min="0" max="100" value="100" style="width:70px;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;" placeholder="%">
+        <span style="font-size:11px;color:#888;">%</span>
+        <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+      </div>
+    </div>
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:6px;" onclick="addAssetsRow()">+ 新增資產國家</span>
+
+    <div class="divider"></div>
+    <div class="sub-label">SEQ 制裁合规问卷（Sanctions Exposure Questionnaire）</div>
+    <div class="note-amber">以下问卷涉及 <strong>Type 1</strong>（定制制裁17国：阿富汗、白俄罗斯、伊拉克、黎巴嫩、利比亚、缅甸、俄罗斯、南苏丹、苏丹、委内瑞拉、也门、津巴布韦等）及 <strong>Type 2</strong>（全面制裁5国：伊朗、朝鲜、叙利亚、古巴及乌克兰非政府控制区）。国家清单由系统后台动态配置，请如实填写。</div>
+
+    <!-- Q1: Type 1 俄罗斯行业专项 -->
+    <div class="field g1" style="margin-bottom:10px;">
+      <label class="field-label"><span style="font-size:10px;background:#faeeda;color:#633806;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:6px;">Q1</span>Does the company have any current or planned exposure to <strong>{Type 1 Russia-specific countries}</strong> in the energy / oil and gas sector, the military or defence sector? <span class="req">*</span></label>
+      <div style="display:flex;gap:16px;margin-top:6px;" id="seq-q1-wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q1" value="N" checked style="accent-color:#185fa5;" onchange="seqQ1Change(this)"> N - No</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q1" value="Y" style="accent-color:#a32d2d;" onchange="seqQ1Change(this)"> Y - Yes</label>
+      </div>
+      <div id="seq-q1-warn" style="display:none;margin-top:6px;padding:6px 10px;background:#fcebeb;border:1px solid #f09595;border-radius:5px;font-size:11px;color:#a32d2d;">⛔ 命中 Type 1 俄罗斯行业专项，开户申请将被拒绝。</div>
+    </div>
+
+    <!-- Q2: Type 2 区域专项 -->
+    <div class="field g1" style="margin-bottom:10px;">
+      <label class="field-label"><span style="font-size:10px;background:#faeeda;color:#633806;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:6px;">Q2</span>Does the company or, to the best of your knowledge, any of its connected or other related parties have any current or planned business activity in <strong>{Type 2 Crimea / Sevastopol / DNR / LNR / Zaporizhzhia region}</strong>? <span class="req">*</span></label>
+      <div style="display:flex;gap:16px;margin-top:6px;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q2" value="N" checked style="accent-color:#185fa5;" onchange="seqWarn(this,'seq-q2-warn')"> N - No</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q2" value="Y" style="accent-color:#a32d2d;" onchange="seqWarn(this,'seq-q2-warn')"> Y - Yes</label>
+      </div>
+      <div id="seq-q2-warn" style="display:none;margin-top:6px;padding:6px 10px;background:#fcebeb;border:1px solid #f09595;border-radius:5px;font-size:11px;color:#a32d2d;">⛔ 命中 Type 2 区域，开户申请将被拒绝。</div>
+    </div>
+
+    <!-- Q3: Type 2 制裁目标检查 -->
+    <div class="field g1" style="margin-bottom:10px;">
+      <label class="field-label"><span style="font-size:10px;background:#faeeda;color:#633806;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:6px;">Q3</span>To the best of your knowledge, does the company or any of the company's connected or other related parties exist in <strong>{Type 2 country list}</strong>, and/or are currently targeted by sanctions administered by: UN, EU, UKHMT, HKMA, OFAC, or as part of local sanctions law? <span class="req">*</span></label>
+      <div style="display:flex;gap:16px;margin-top:6px;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q3" value="N" checked style="accent-color:#185fa5;" onchange="seqWarn(this,'seq-q3-warn')"> N - No</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q3" value="Y" style="accent-color:#a32d2d;" onchange="seqWarn(this,'seq-q3-warn')"> Y - Yes</label>
+      </div>
+      <div id="seq-q3-warn" style="display:none;margin-top:6px;padding:6px 10px;background:#fcebeb;border:1px solid #f09595;border-radius:5px;font-size:11px;color:#a32d2d;">⛔ 命中 Type 2 制裁目标，开户申请将被拒绝。</div>
+    </div>
+
+    <!-- Q4: Type 1 & Type 2 综合业务检查 -->
+    <div class="field g1" style="margin-bottom:6px;">
+      <label class="field-label"><span style="font-size:10px;background:#faeeda;color:#633806;padding:1px 6px;border-radius:3px;font-weight:700;margin-right:6px;">Q4</span>Does the Company currently have or plan to have business activity in the following countries/regions: <strong>{Type 1 + Type 2 country list}</strong>? <span class="req">*</span></label>
+      <div style="display:flex;gap:16px;margin-top:6px;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q4" value="N" checked style="accent-color:#185fa5;" onchange="seqQ4Change(this)"> N - No</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="seq_q4" value="Y" style="accent-color:#854f0b;" onchange="seqQ4Change(this)"> Y - Yes</label>
+      </div>
+    </div>
+
+    <!-- Q4 = Y: Name of the jurisdiction -->
+    <div id="seq-q4-detail" style="display:none;margin-top:8px;padding:10px 14px;background:#fafaf7;border:1px solid #e0dfd8;border-radius:6px;">
+      <div class="sub-label-sm">Name of the Jurisdiction（制裁国家商业活动详情，最多 5 条）</div>
+      <div id="seq-jurisdiction-list" style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+        <div class="seq-jurisdiction-row" style="display:flex;gap:8px;align-items:center;">
+          <select style="flex:1;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+            <option value="">选择制裁国家</option>
+            <optgroup label="Type 1 Countries">
+              <option>Afghanistan</option><option>Belarus</option><option>Central African Republic</option>
+              <option>DR Congo</option><option>Eritrea</option><option>Haiti</option>
+              <option>Iraq</option><option>Lebanon</option><option>Libya</option>
+              <option>Myanmar</option><option>Russia</option><option>South Sudan</option>
+              <option>Sudan</option><option>Venezuela</option><option>Yemen</option>
+              <option>Zimbabwe</option><option>Ukraine</option>
+            </optgroup>
+            <optgroup label="Type 2 Countries">
+              <option>Iran</option><option>North Korea</option><option>Syria</option>
+              <option>Cuba</option><option>Crimea / Sevastopol</option>
+              <option>DNR / LNR</option><option>Zaporizhzhia</option>
+            </optgroup>
+          </select>
+          <input type="text" placeholder="Purpose of business in this jurisdiction（CHAR 120）" maxlength="120" style="flex:3;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+          <span style="font-size:11px;color:#a32d2d;cursor:pointer;padding:2px 8px;border-radius:4px;background:#fcebeb;border:1px solid #f09595;" onclick="this.parentNode.remove()">✕</span>
+        </div>
+      </div>
+      <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:8px;" onclick="addJurisdictionRow()">+ 新增制裁国家</span>
+    </div>
+
+    <script>
+    function seqWarn(radio, warnId) {
+      document.getElementById(warnId).style.display = radio.value === 'Y' ? 'block' : 'none';
+    }
+    function seqQ1Change(radio) {
+      document.getElementById('seq-q1-warn').style.display = radio.value === 'Y' ? 'block' : 'none';
+    }
+    function seqQ4Change(radio) {
+      document.getElementById('seq-q4-detail').style.display = radio.value === 'Y' ? 'block' : 'none';
+    }
+    function addJurisdictionRow() {
+      var list = document.getElementById('seq-jurisdiction-list');
+      var rows = list.querySelectorAll('.seq-jurisdiction-row');
+      if (rows.length >= 5) { alert('最多只能新增 5 条制裁国家记录'); return; }
+      var clone = rows[0].cloneNode(true);
+      clone.querySelector('select').selectedIndex = 0;
+      clone.querySelector('input').value = '';
+      list.appendChild(clone);
+    }
+    </script>
+  </div>
+</div>
+
+<!-- Section 5 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-amber">5</div>
+    <span class="sec-title">Source of Wealth / Fund</span>
+  </div>
+  <div class="sec-body">
+    <div class="sub-label">5.1 Source of Fund（資金來源）</div>
+    <div class="sof-wrap">
+      <div class="field">
+        <label class="field-label">Initial Source of Fund <span class="req">*</span></label>
+        <div class="sof-group" id="sof-init-group">
+          <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sof-init')">BI - BUSINESS INCOME</label>
+          <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sof-init')">IF - INTRA-GROUP FINANCING</label>
+          <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sof-init')">IP - INVESTMENT BY UBO/PARTNER</label>
+          <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sof-init')">SA - SALE OF PROPERTY/ASSET</label>
+          <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sof-init','sof-init-other')">OT - OTHER</label>
+        </div>
+      </div>
+      <div id="sof-init-other" class="sof-other">
+        <input type="text" placeholder="其他初始资金来源说明" maxlength="60" style="width:100%;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="field"><label class="field-label">Country — Initial</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>SGP - Singapore</option></select></div>
+    </div>
+    <div class="divider" style="margin:12px 0 10px;"></div>
+    <div class="sof-wrap">
+      <div class="field">
+        <label class="field-label">Ongoing Source of Fund <span class="req">*</span></label>
+        <div class="sof-group" id="sof-ongo-group">
+          <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sof-ongo')">BI - BUSINESS INCOME</label>
+          <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sof-ongo')">IF - INTRA-GROUP FINANCING</label>
+          <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sof-ongo')">IP - INVESTMENT BY UBO/PARTNER</label>
+          <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sof-ongo')">SA - SALE OF PROPERTY/ASSET</label>
+          <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sof-ongo','sof-ongo-other')">OT - OTHER</label>
+        </div>
+      </div>
+      <div id="sof-ongo-other" class="sof-other">
+        <input type="text" placeholder="其他持续资金来源说明" maxlength="60" style="width:100%;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="field"><label class="field-label">Country — Ongoing</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>SGP - Singapore</option></select></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sub-label">5.2 Source of Wealth（財富來源）</div>
+    <div class="sof-wrap">
+      <div class="field">
+        <label class="field-label">Initial Source of Wealth <span class="req">*</span></label>
+        <div class="sof-group" id="sow-init-group">
+          <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sow-init')">BI - BUSINESS INCOME</label>
+          <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sow-init')">IF - INTRA-GROUP FINANCING</label>
+          <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sow-init')">IP - INVESTMENT BY UBO/PARTNER</label>
+          <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sow-init')">SA - SALE OF PROPERTY/ASSET</label>
+          <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sow-init','sow-init-other')">OT - OTHER</label>
+        </div>
+      </div>
+      <div id="sow-init-other" class="sof-other">
+        <input type="text" placeholder="其他初始财富来源说明" maxlength="60" style="width:100%;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="field"><label class="field-label">Country — Initial</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>SGP - Singapore</option></select></div>
+    </div>
+    <div class="divider" style="margin:12px 0 10px;"></div>
+    <div class="sof-wrap">
+      <div class="field">
+        <label class="field-label">Ongoing Source of Wealth <span class="req">*</span></label>
+        <div class="sof-group" id="sow-ongo-group">
+          <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sow-ongo')">BI - BUSINESS INCOME</label>
+          <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sow-ongo')">IF - INTRA-GROUP FINANCING</label>
+          <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sow-ongo')">IP - INVESTMENT BY UBO/PARTNER</label>
+          <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sow-ongo')">SA - SALE OF PROPERTY/ASSET</label>
+          <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sow-ongo','sow-ongo-other')">OT - OTHER</label>
+        </div>
+      </div>
+      <div id="sow-ongo-other" class="sof-other">
+        <input type="text" placeholder="其他持续财富来源说明" maxlength="60" style="width:100%;height:32px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;">
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="field"><label class="field-label">Country — Ongoing</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option><option>SGP - Singapore</option></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-amber">6</div>
+    <span class="sec-title">Anticipated Transaction &amp; Purpose of Usage</span>
+  </div>
+  <div class="sec-body">
+    <div class="sub-label">6.1 Cross Border Transaction</div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Cross Border #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Transaction Type <span class="req">*</span></label><select><option>请选择</option><option>Trade Payment</option><option>Investment</option><option>Loan</option></select></div>
+        <div class="field"><label class="field-label">Country <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>请选择</option><option>HKG</option><option>CHN</option></select></div>
+        <div class="field"><label class="field-label">Currency <span class="req">*</span></label><select><option>HKD</option><option>USD</option><option>CNY</option></select></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Frequency <span class="req">*</span></label><select><option>请选择</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select></div>
+        <div class="field"><label class="field-label">Amount Per Transaction <span class="req">*</span></label><input type="text" placeholder="HKD"></div>
+        <div class="field"><label class="field-label">Booking Centre <span class="req">*</span></label><select><option>请选择</option><option>HK</option></select></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Cross Border 记录（最多 10 条）</button>
+    <div class="divider"></div>
+    <div class="sub-label">6.2 Regular Domestic Transaction</div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Domestic #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Transaction Type <span class="req">*</span></label><select><option>请选择</option><option>Payroll</option><option>Vendor Payment</option><option>Collection</option></select></div>
+        <div class="field"><label class="field-label">Currency <span class="req">*</span></label><select><option>HKD</option><option>USD</option></select></div>
+        <div class="field"><label class="field-label">Frequency <span class="req">*</span></label><select><option>请选择</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label class="field-label">Amount Per Transaction <span class="req">*</span></label><input type="text" placeholder="HKD"></div>
+        <div class="field"><label class="field-label">Monthly Transaction Volume <span class="req">*</span></label><input type="text" placeholder="笔数/月"></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Domestic 记录（最多 10 条）</button>
+    <div class="divider"></div>
+    <div class="sub-label">6.3 Purpose for Account Opening</div>
+    <div class="g1 field">
+      <label class="field-label">Purpose for Account Opening <span class="req">*</span> <span style="font-size:10px;color:#888;font-weight:400">（最多 5 個）</span></label>
+      <div class="check-row" style="margin-top:6px;">
+        <label class="check-item"><input type="checkbox" value="BO"> BO - BUSINESS OPERATIONS</label>
+        <label class="check-item"><input type="checkbox" value="IS"> IS - PAYMENT OF HIRE</label>
+        <label class="check-item"><input type="checkbox" value="IV"> IV - INVESTMENT</label>
+        <label class="check-item"><input type="checkbox" value="SF"> SF - SAVING / FIXED DEPOSIT</label>
+        <label class="check-item"><input type="checkbox" value="PR"> PR - PAYROLL</label>
+        <label class="check-item"><input type="checkbox" value="LO"> LO - LOAN</label>
+        <label class="check-item"><input type="checkbox" value="OT"> OT - OTHER</label>
+      </div>
+    </div>
+    <div class="g1 field" style="margin-top:8px;">
+      <label class="field-label">Others (Please Specify) <span class="cond-badge">Purpose = OT 時必填</span></label>
+      <input type="text" placeholder="其他开户目的说明" maxlength="200">
+    </div>
+    <div class="divider"></div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Whether annual turnover of group exceeds HKD 1.5 billion</label><select><option value="">请选择</option><option value="N">N - No</option><option value="Y">Y - Yes</option></select></div>
+      <div class="field"><label class="field-label">Non-SME flag</label><select><option value="">请选择</option><option value="N">N - No</option><option value="Y">Y - Yes</option></select></div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Hold Balances with Infrequent Activity flag</label>
+        <select onchange="document.getElementById('hold-rationale').style.display=this.value==='Y'?'block':'none'"><option value="">请选择</option><option value="N">N - No</option><option value="Y">Y - Yes</option></select>
+      </div>
+    </div>
+    <div id="hold-rationale" style="display:none;margin-top:6px;">
+      <div class="field g1"><label class="field-label">Amount and Rationale <span class="cond-badge">Hold Balances = Y 時必填</span></label><textarea rows="2" placeholder="请提供预期持有结余金额及理由" maxlength="200"></textarea></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 7 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-purple">7</div>
+    <span class="sec-title">FATCA / CRS</span>
+  </div>
+  <div class="sec-body">
+    <div class="sub-label">7.1 FATCA</div>
+    <div class="g3">
+      <div class="field"><label class="field-label">FATCA Documentation <span class="req">*</span></label><select><option>01 - W-8BEN-E</option><option>02 - W-9</option><option>03 - Self-Certification</option><option>04 - N/A</option></select></div>
+      <div class="field"><label class="field-label">FATCA Classification</label><select><option>请选择</option><option>Active NFFE</option><option>Passive NFFE</option><option>US Person</option></select></div>
+      <div class="field"><label class="field-label">Sign Date of FATCA Documentation</label><input type="text" placeholder="YYYYMMDD"></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">FATCA Due Diligence Status</label><select><option>01 - Completed Normal</option><option>02 - Completed Enhanced</option><option>03 - Incomplete</option><option>04 - N/A</option></select></div>
+      <div class="field"><label class="field-label">FATCA pre-existing account</label><select><option>N - No</option><option>Y - Yes</option></select></div>
+      <div class="field"><label class="field-label">US Tax ID (TIN)</label><input type="text" placeholder="如有请填写"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sub-label">7.2 CRS</div>
+    <div class="g3">
+      <div class="field"><label class="field-label">CRS Entity Classification <span class="req">*</span></label><select><option>请选择</option><option>Active NFE</option><option>Passive NFE</option><option>Financial Institution</option></select></div>
+      <div class="field"><label class="field-label">CRS self-certification valid</label><select><option>Y - Yes</option><option>N - No</option></select></div>
+      <div class="field"><label class="field-label">CRS pre-existing account</label><select><option>N - No</option><option>Y - Yes</option></select></div>
+    </div>
+    <div class="sub-label" style="margin-top:8px">Tax Residency（最多 10 组）</div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Tax Residency #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Tax Residency Country <span class="req">*</span></label><select><option>HKG - Hong Kong</option><option>CHN - China</option></select></div>
+        <div class="field"><label class="field-label">TIN</label><input type="text" placeholder="税务识别号码"></div>
+        <div class="field"><label class="field-label">Reason for No TIN</label><select><option>请选择</option><option>A - 无TIN要求</option><option>B - 无法取得</option><option>C - 其他</option></select></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Tax Residency（最多 10 组）</button>
+  </div>
+</div>
+
+<!-- Section 8 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">8</div>
+    <span class="sec-title">Company Change</span>
+  </div>
+  <div class="sec-body">
+    <div class="sub-label">Company Name Change（最多 10 组）</div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Name Change #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Previous English Name</label><input type="text" placeholder="原英文名称"></div>
+        <div class="field"><label class="field-label">Previous Chinese Name</label><input type="text" placeholder="原中文名称"></div>
+        <div class="field"><label class="field-label">Effective Date</label><input type="text" placeholder="YYYYMMDD"></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增名称变更记录</button>
+    <div class="divider"></div>
+    <div class="sub-label">Company Industry Change（最多 10 组）</div>
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Industry Change #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Previous Industry</label><input type="text" placeholder="原行业"></div>
+        <div class="field"><label class="field-label">New Industry</label><input type="text" placeholder="新行业"></div>
+        <div class="field"><label class="field-label">Effective Date</label><input type="text" placeholder="YYYYMMDD"></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增行业变更记录</button>
+    <div class="divider"></div>
+    <div class="g2">
+      <div class="field">
+        <label class="field-label">Company Change flag <span class="req">*</span></label>
+        <select>
+          <option value="N">N - No（过去5年无实质性变化）</option>
+          <option value="Y">Y - Yes（过去5年有实质性变化）</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TU Company Search -->
+<div class="sec" id="tu-company-search">
+  <div class="sec-hd" style="justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#185fa5" stroke-width="1.3"/><path d="M10.5 10.5L13.5 13.5" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="sec-title">Company Search（TU 查詢結果）</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:#555">查詢來源：<span id="tu-source-label" style="color:#1d9e75;font-weight:600">–</span></span>
+      <span id="tu-queried-badge" style="display:none;background:#e1f5ee;color:#085041;border:1px solid #5dcaa5;border-radius:20px;font-size:10px;font-weight:600;padding:1px 9px">已查詢</span>
+    </div>
+  </div>
+  <div class="sec-body" id="tu-cs-body">
+
+    <!-- 未查詢佔位 -->
+    <div id="tu-cs-placeholder" style="text-align:center;padding:20px 0;color:#aaa;font-size:12px">
+      請在 Section 0 輸入證書號碼並點擊「搜索」，查詢結果將在此顯示
+    </div>
+
+    <!-- 查詢結果（查詢後顯示）-->
+    <div id="tu-cs-result" style="display:none">
+
+      <!-- ① Entity Details -->
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;border:1px solid #b5d4f4;border-radius:6px;padding:5px 12px;margin-bottom:10px">Entity Details</div>
+      <div style="border:1px solid #e0dfd8;border-radius:6px;overflow:hidden;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Company type</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Company status</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Company name</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Incorporation date</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Company registered address</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="tu-ent-type"   style="padding:8px 12px;font-size:11px;color:#1a1a18">–</td>
+              <td id="tu-ent-status" style="padding:8px 12px;font-size:11px">–</td>
+              <td id="tu-ent-name"   style="padding:8px 12px;font-size:11px;font-weight:500;color:#1a1a18">–</td>
+              <td id="tu-ent-date"   style="padding:8px 12px;font-size:11px;color:#555">–</td>
+              <td id="tu-ent-addr"   style="padding:8px 12px;font-size:11px;color:#555">–</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ② Connected Party -->
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;border:1px solid #b5d4f4;border-radius:6px;padding:5px 12px;margin-bottom:10px">Connected Party</div>
+      <div style="border:1px solid #e0dfd8;border-radius:6px;overflow:hidden;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Role</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">ID Type</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Other ID Type</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">ID Number</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">First Name</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid #e0dfd8">Last Name</th>
+              <th style="padding:7px 12px;background:#f7f7f5;color:#555;font-size:11px;font-weight:600;text-align:right;border-bottom:1px solid #e0dfd8">Share %</th>
+            </tr>
+          </thead>
+          <tbody id="tu-party-tbody">
+            <tr><td colspan="7" style="padding:12px;text-align:center;color:#aaa;font-size:11px">–</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ③ Related Documents -->
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;border:1px solid #b5d4f4;border-radius:6px;padding:5px 12px;margin-bottom:10px">Related Documents</div>
+      <div id="tu-docs-list" style="border:1px solid #e0dfd8;border-radius:6px;overflow:hidden"></div>
+
+    </div><!-- end tu-cs-result -->
+  </div>
+</div>
+
+<!-- Section 9 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">9</div>
+    <span class="sec-title">Company Secretary Information</span>
+  </div>
+  <div class="sec-body">
+    <div class="g3">
+      <div class="field"><label class="field-label">ID Type</label><select><option>BUSINESS REGISTRATION CERTIFICATE</option><option>CERTIFICATE OF INCORPORATION</option><option>Others</option></select></div>
+      <div class="field"><label class="field-label">ID Number</label><input type="text" placeholder="证件号码"></div>
+      <div class="field">
+        <label class="field-label">Company English Name <span class="ns-badge">NS</span></label>
+        <input type="text" placeholder="秘书公司英文名称">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field"><label class="field-label">Company Chinese Name</label><input type="text" placeholder="秘书公司中文名称（选填）"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sub-label">Secretary Address</div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">室/單位 Room</label>
+        <div class="inline-group">
+          <select style="width:76px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+          <input type="text" placeholder="房号" maxlength="35" style="flex:1">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">樓層 Floor</label>
+        <div class="inline-group">
+          <input type="text" placeholder="楼层" maxlength="35" style="flex:1">
+          <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;padding-left:4px;">/F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">座/期/大廈/屋苑 Building</label>
+        <input type="text" placeholder="大厦名称" maxlength="70">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">街號街道 Street </label>
+        <input type="text" placeholder="街道" maxlength="70">
+      </div>
+      <div class="field">
+        <label class="field-label">區域 City</label>
+        <select>
+          <option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option>
+          <option>Mong Kok</option><option>Sha Tin</option><option>Tuen Mun</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">省份 Province</label>
+        <select>
+          <option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option>
+        </select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+        <select>
+          <option>HKG - Hong Kong S.A.R</option><option>CHN - China</option>
+          <option>USA - United States</option><option>GBR - United Kingdom</option>
+          <option>SGP - Singapore</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 10 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">10</div>
+    <span class="sec-title">Details of Connected Parties</span>
+  </div>
+  <div class="sec-body">
+    <div class="sub-label">10.1 Individuals（自然人相关人士）</div>
+    <div class="party-card">
+      <div class="party-hd">
+        <span class="party-name">Individual #1 — CHAN Tai Man 陈大文</span>
+        <button class="remove-btn">删除</button>
+      </div>
+      <div class="party-body">
+        <div class="g3">
+          <div class="field"><label class="field-label">Ownership Structure Level</label><select><option value="">请选择</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
+          <div class="field"><label class="field-label">Identity Card Type <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>ID - HK Identity Card</option><option>PP - Passport</option><option>CD - Chinese Resident ID</option><option>PT - Others</option></select></div>
+          <div class="field"><label class="field-label">Identity Card Number <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" placeholder="证件号码"></div>
+          <div class="field"><label class="field-label">Others Identity <span class="cond-badge">PT 时填写</span></label><input type="text" placeholder="其他证件说明"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">First Name <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" value="Tai Man"></div>
+          <div class="field"><label class="field-label">Last Name <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" value="CHAN"></div>
+          <div class="field"><label class="field-label">Chinese Name <span class="ns-badge">NS</span></label><input type="text" value="陈大文"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Gender <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>M - Male</option><option>F - Female</option></select></div>
+          <div class="field"><label class="field-label">Date of Birth <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" value="19800101" placeholder="YYYYMMDD"></div>
+          <div class="field"><label class="field-label">Place of Birth <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>HKG - Hong Kong</option><option>CHN - China</option></select></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Nationality <span class="ns-badge">NS</span></label><select><option>HKG - Hong Kong</option></select></div>
+          <div class="field"><label class="field-label">Permanent HKID <span class="cond-badge">HKID 时填写</span></label><select><option>Yes</option><option>No</option></select></div>
+          <div class="field"><label class="field-label">ID Issue Date</label><input type="text" placeholder="YYYYMMDD"></div>
+        </div>
+        <div class="g1 field">
+          <label class="field-label">Capacity of Connected Party <span class="req">*</span></label>
+          <select>
+            <option>085 - Beneficial Owner</option><option>034 - Director</option><option>065 - Partner</option>
+            <option>114 - Sole Proprietor</option><option>088 - Authorised Representative</option>
+            <option>019 - BIB Representative &amp; Checker</option><option>118 - Controlling Person</option>
+            <option>120 - BIB Maker</option><option>121 - BIB Administrator</option><option>1199 - BIB TRADER</option>
+          </select>
+          <div class="tag-row">
+            <span class="tag">085 Beneficial Owner ×</span>
+            <span class="tag">034 Director ×</span>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Ownership (%)</label><input type="number" value="60"></div>
+          <div class="field"><label class="field-label">Job Title</label><input type="text" placeholder="职衔"></div>
+          <div class="field"><label class="field-label">Related Client On PEP</label><select><option>No</option><option>Hong Kong PEP</option><option>Non Hong Kong PEP</option><option>International Organization PEP</option></select></div>
+        </div>
+        <div class="g2">
+          <div class="field"><label class="field-label">Email Address <span class="req">*</span></label><input type="email" placeholder="电子邮件"></div>
+          <div class="field">
+            <label class="field-label">Telephone</label>
+            <div class="inline-group">
+              <select style="width:120px;flex-shrink:0"><option>852 - 香港</option><option>86 - 大陆</option><option>84 - 越南</option><option>66 - 泰国</option></select>
+              <input type="text" placeholder="电话号码" style="flex:1">
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="sub-label">Tax Residency（最多 4 组）</div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Tax Residency Country</label><select><option>HKG - Hong Kong</option></select></div>
+          <div class="field"><label class="field-label">TIN</label><input type="text" placeholder="税务识别号"></div>
+          <div class="field"><label class="field-label">Reason for No TIN</label><select><option>请选择</option><option>A</option><option>B</option><option>C</option></select></div>
+        </div>
+        <button class="add-btn">+ 新增 Tax Residency</button>
+        <div class="divider"></div>
+        <div class="sub-label">Residential Address <span style="font-size:10px;color:#888;font-weight:400;">（Room + Floor + Building + Street + City + Province + Country）</span></div>
+        <div class="g3">
+          <div class="field">
+            <label class="field-label">室/單位 Room</label>
+            <div class="inline-group">
+              <select style="width:76px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select>
+              <input type="text" placeholder="505" maxlength="35" style="flex:1">
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">樓層 Floor</label>
+            <div class="inline-group">
+              <input type="text" placeholder="3" maxlength="35" style="flex:1">
+              <span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;padding-left:4px;">/F</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">座/期/大廈/屋苑 Building</label>
+            <input type="text" placeholder="Wanchai Tower" maxlength="70">
+          </div>
+        </div>
+        <div class="g3">
+          <div class="field">
+            <label class="field-label">街號街道 Street <span class="req">*</span></label>
+            <input type="text" placeholder="12 Harbour Road" maxlength="70">
+          </div>
+          <div class="field">
+            <label class="field-label">區域 City</label>
+            <select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option><option>Mong Kok</option><option>Sha Tin</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label">省份 Province</label>
+            <select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="field">
+            <label class="field-label">國家/地區 Country <span class="req">*</span></label>
+            <select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="sub-label">Beneficial Owner Source of Wealth <span class="cond-badge">Capacity = 085 Beneficial Owner 時填寫</span></div>
+        <div class="field">
+          <label class="field-label">Initial Source of Wealth</label>
+          <div class="sof-group" id="sow-ind-init-group">
+            <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sow-ind-init')">BI - BUSINESS INCOME</label>
+            <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sow-ind-init')">IF - INTRA-GROUP FINANCING</label>
+            <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sow-ind-init')">IP - INVESTMENT BY UBO/PARTNER</label>
+            <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sow-ind-init')">SA - SALE OF PROPERTY/ASSET</label>
+            <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sow-ind-init','sow-ind-init-other')">OT - OTHER</label>
+          </div>
+          <div id="sow-ind-init-other" class="sof-other"><input type="text" placeholder="其他初始财富来源说明" maxlength="60" style="width:100%;height:30px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"></div>
+        </div>
+        <div class="g3" style="margin-top:6px;">
+          <div class="field"><label class="field-label">Country — Initial SOW</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option></select></div>
+        </div>
+        <div style="margin:8px 0;border-top:1px dashed #e0dfd8;"></div>
+        <div class="field">
+          <label class="field-label">Ongoing Source of Wealth</label>
+          <div class="sof-group" id="sow-ind-ongo-group">
+            <label class="sof-pill"><input type="checkbox" value="BI" onchange="sofToggle(this,'sow-ind-ongo')">BI - BUSINESS INCOME</label>
+            <label class="sof-pill"><input type="checkbox" value="IF" onchange="sofToggle(this,'sow-ind-ongo')">IF - INTRA-GROUP FINANCING</label>
+            <label class="sof-pill"><input type="checkbox" value="IP" onchange="sofToggle(this,'sow-ind-ongo')">IP - INVESTMENT BY UBO/PARTNER</label>
+            <label class="sof-pill"><input type="checkbox" value="SA" onchange="sofToggle(this,'sow-ind-ongo')">SA - SALE OF PROPERTY/ASSET</label>
+            <label class="sof-pill"><input type="checkbox" value="OT" onchange="sofToggle(this,'sow-ind-ongo','sow-ind-ongo-other')">OT - OTHER</label>
+          </div>
+          <div id="sow-ind-ongo-other" class="sof-other"><input type="text" placeholder="其他持续财富来源说明" maxlength="60" style="width:100%;height:30px;border:1px solid #c8c7bf;border-radius:6px;padding:0 8px;font-size:12px;"></div>
+        </div>
+        <div class="g3" style="margin-top:6px;">
+          <div class="field"><label class="field-label">Country — Ongoing SOW</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option></select></div>
+        </div>
+        <div class="divider"></div>
+        <div class="sub-label">FATCA（個人）</div>
+        <div class="g3">
+          <div class="field"><label class="field-label">US Tax ID (FATCA TIN)</label><input type="text" placeholder="美国税务编号（如有）" maxlength="30"></div>
+          <div class="field"><label class="field-label">Substantial US owner flag</label><select><option value="">请选择</option><option value="N">N - No</option><option value="Y">Y - Yes（实体的重大美国股东）</option></select></div>
+        </div>
+        <div class="divider"></div>
+        <div class="sub-label">CRS（個人）</div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Entity controlling person flag</label><select><option value="">请选择</option><option value="N">N - No</option><option value="Y">Y - Yes（实体控制人）</option></select></div>
+          <div class="field"><label class="field-label">CRS Tax Residency</label><select><option value="">请选择</option><option>HKG - Hong Kong</option><option>CHN - China</option><option>USA - United States</option></select></div>
+          <div class="field"><label class="field-label">CRS TIN</label><input type="text" placeholder="CRS税务编号" maxlength="30"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">CRS Reason for No TIN</label><input type="text" placeholder="无TIN原因" maxlength="200"></div>
+          <div class="field"><label class="field-label">Type of Controlling Person</label><select><option value="">请选择</option><option value="01">01 - Controlling ownership interest</option><option value="02">02 - Control through other means</option><option value="03">03 - Senior managing official</option><option value="04">04 - Settlor</option><option value="05">05 - Trustee</option><option value="06">06 - Protector/Enforcer</option><option value="07">07 - Beneficiary</option><option value="08">08 - Other</option></select></div>
+        </div>
+        <div class="divider"></div>
+        <div class="sub-label">Authorised Representative's Signature Style</div>
+        <table class="sig-table">
+          <thead><tr><th style="width:200px">File Type</th><th>File Name</th><th style="width:120px;text-align:right">Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Authorised Representative</td>
+              <td style="color:#aaa;font-size:11px">未上传</td>
+              <td style="text-align:right"><button class="btn-teal" style="height:26px;font-size:11px;padding:0 12px">Upload</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:10px;color:#aaa;margin-top:4px">支持 PNG/JPG/JPEG，可截图后 Ctrl+V / Cmd+V 粘贴上传</p>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Individual</button>
+
+    <div class="divider"></div>
+    <div class="sub-label" style="margin-top:8px">10.2 Entities（公司相关人士）</div>
+    <div class="party-card">
+      <div class="party-hd">
+        <span class="party-name">Entity #1</span>
+        <button class="remove-btn">删除</button>
+      </div>
+      <div class="party-body">
+        <div class="g3">
+          <div class="field"><label class="field-label">ID Type <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>BUSINESS REGISTRATION CERTIFICATE</option><option>CERTIFICATE OF INCORPORATION</option><option>Others</option></select></div>
+          <div class="field"><label class="field-label">ID Number <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" placeholder="证件号码"></div>
+          <div class="field"><label class="field-label">Others <span class="cond-badge">Others 时填写</span></label><input type="text" placeholder="其他证件说明"></div>
+        </div>
+        <div class="g2">
+          <div class="field"><label class="field-label">Registered Full Name in English <span class="req">*</span><span class="ns-badge">NS</span></label><input type="text" placeholder="公司英文注册全名"></div>
+          <div class="field"><label class="field-label">Registered Full Name in Chinese <span class="ns-badge">NS</span></label><input type="text" placeholder="公司中文注册全名（如适用）"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">Entity Type <span class="req">*</span></label><select><option>CO - Limited Company</option><option>TR - Trust</option><option>PA - Partnership</option></select></div>
+          <div class="field"><label class="field-label">Capacity <span class="req">*</span></label><select><option>085 - Beneficial Owner</option><option>034 - Director</option></select></div>
+          <div class="field"><label class="field-label">Ownership (%)</label><input type="number" placeholder="持股比例"></div>
+        </div>
+        <div class="g2">
+          <div class="field"><label class="field-label">Listing on Stock Exchange</label><select><option>N - No</option><option>Y - Yes</option></select></div>
+          <div class="field"><label class="field-label">Name(s) of Stock Exchange <span class="cond-badge">Listing = Y 时填写</span></label><input type="text" placeholder="证券交易所名称"></div>
+        </div>        <div class="divider"></div>
+        <div class="sub-label">Registered Office Address <span class="cond-badge">Director / Senior Officer / Authorised Representative 適用 NS</span></div>
+        <div class="g3">
+          <div class="field"><label class="field-label">室/單位 Room</label><div class="inline-group"><select style="width:76px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select><input type="text" placeholder="房号" maxlength="35" style="flex:1"></div></div>
+          <div class="field"><label class="field-label">樓層 Floor</label><div class="inline-group"><input type="text" placeholder="楼层" maxlength="35" style="flex:1"><span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;padding-left:4px;">/F</span></div></div>
+          <div class="field"><label class="field-label">座/期/大廈/屋苑 Building</label><input type="text" placeholder="大厦名称" maxlength="70"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">街號街道 Street</label><input type="text" placeholder="街道" maxlength="70"></div>
+          <div class="field"><label class="field-label">區域 City</label><select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option></select></div>
+          <div class="field"><label class="field-label">省份 Province</label><select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">國家/地區 Country <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select></div>
+        </div>        <div class="divider"></div>
+        <div class="sub-label">Principal Business Address <span class="cond-badge">Senior Officer 適用</span></div>
+        <div class="g3">
+          <div class="field"><label class="field-label">室/單位 Room</label><div class="inline-group"><select style="width:76px;flex-shrink:0;height:32px;border:1px solid #c8c7bf;border-radius:6px;font-size:12px;"><option>ROOM</option><option>FLAT</option><option>UNIT</option><option>SHOP</option></select><input type="text" placeholder="房号" maxlength="35" style="flex:1"></div></div>
+          <div class="field"><label class="field-label">樓層 Floor</label><div class="inline-group"><input type="text" placeholder="楼层" maxlength="35" style="flex:1"><span style="line-height:32px;color:#888;font-size:12px;white-space:nowrap;padding-left:4px;">/F</span></div></div>
+          <div class="field"><label class="field-label">座/期/大廈/屋苑 Building</label><input type="text" placeholder="大厦名称" maxlength="70"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">街號街道 Street</label><input type="text" placeholder="街道" maxlength="70"></div>
+          <div class="field"><label class="field-label">區域 City</label><select><option>Wanchai</option><option>Central</option><option>Tsim Sha Tsui</option></select></div>
+          <div class="field"><label class="field-label">省份 Province</label><select><option>Hong Kong Island</option><option>Kowloon</option><option>New Territories</option></select></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label class="field-label">國家/地區 Country <span class="req">*</span><span class="ns-badge">NS</span></label><select><option>HKG - Hong Kong S.A.R</option><option>CHN - China</option><option>USA - United States</option><option>GBR - United Kingdom</option></select></div>
+        </div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增 Entity</button>
+  </div>
+</div>
+
+<!-- Section 11 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">11</div>
+    <span class="sec-title">DD Account Information</span>
+  </div>
+  <div class="sec-body">
+    <div class="multi-item">
+      <div class="multi-item-hd"><span>Account #1</span><button class="remove-btn">删除</button></div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Product Code <span class="req">*</span></label><input type="text" value="CORP - SAVING ACCOUNT" class="readonly" readonly></div>
+        <div class="field"><label class="field-label">Currency Type <span class="req">*</span></label><input type="text" value="Multiple Currency" class="readonly" readonly></div>
+        <div class="field"><label class="field-label">Account Type <span class="req">*</span></label><select><option>Client Account</option><option>House Account</option><option>SFGS Account</option><option>Payroll Account</option><option>Solar House Account</option><option>Solar Client Account</option><option>Reserve Account</option></select></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Account English Name <span class="req">*</span></label><input type="text" placeholder="账户英文名称"></div>
+        <div class="field"><label class="field-label">Account Local Name</label><input type="text" placeholder="账户本地名称（选填）"></div>
+        <div class="field"><label class="field-label">Booking Centre <span class="req">*</span></label><select><option>请选择</option><option>HK</option></select></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label class="field-label">Create Commercial Card (VPA) Flag</label><select><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label class="field-label">Commercial Card (VPA) Number <span class="cond-badge">VPA = Yes 时填写</span></label><input type="text" placeholder="VPA 号码"></div>
+      </div>
+    </div>
+    <button class="add-btn">+ 新增账户</button>
+  </div>
+</div>
+
+<!-- Section 12 -->
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-num num-blue">12</div>
+    <span class="sec-title">Signing Arrangement</span>
+  </div>
+  <div class="sec-body">
+    <div class="g2">
+      <div class="field"><label class="field-label">Signing Instruction <span class="req">*</span></label><select><option>Other</option><option>Any one to sign</option><option>Any two to sign</option><option>Any three to sign</option><option>Any four to sign</option><option>Any five to sign</option><option>Any six to sign</option></select></div>
+      <div class="field"><label class="field-label">Please specify <span class="cond-badge">Signing Instruction = Other 时填写</span></label><input type="text" placeholder="其他签署指示说明"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 13 -->
+<div class="sec">
+  <div class="sec-hd"><div class="sec-num num-amber">13</div><span class="sec-title">Register New Company（BIB 网银档案）</span></div>
+  <div class="sec-body">
+    <div class="note-blue">公司基本信息由 CIF 系统通过接口自动传入 BIB，以下仅需填写网银专属配置项（共 7 项，全部必填）</div>
+    <div class="g3">
+      <div class="field"><label class="field-label">Allow Time Deposit Operation <span class="req">*</span></label><select class="fi"><option>YES</option><option>NO</option></select></div>
+      <div class="field"><label class="field-label">Allow Approver Selection <span class="req">*</span></label><select class="fi"><option>YES</option><option>NO</option></select></div>
+      <div class="field"><label class="field-label">Allow First Approver <span class="req">*</span></label><select class="fi"><option>NO</option><option>YES</option></select></div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label class="field-label">Authorization Preference Currency <span class="req">*</span></label>
+        <div style="display:flex;gap:16px;height:32px;align-items:center">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" checked style="accent-color:#185fa5"> HKD</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" style="accent-color:#185fa5"> USD</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" style="accent-color:#185fa5"> CNY</label>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">Virtual Account Menu <span class="req">*</span></label><select class="fi"><option>NO</option><option>YES</option></select></div>
+      <div class="field"><label class="field-label">Monthly Limit Flag <span class="req">*</span></label><select class="fi"><option>NO</option><option>YES</option></select></div>
+    </div>
+    <div class="g3">
+      <div class="field"><label class="field-label">FX Consent Flag <span class="req">*</span></label><select class="fi"><option>NO</option><option>YES</option></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 14 -->
+<div class="sec">
+  <div class="sec-hd"><div class="sec-num num-amber">14</div><span class="sec-title">New Company User（BIB 网银用户）</span></div>
+  <div class="sec-body">
+    <div style="font-size:11px;color:#555;padding:6px 10px;background:#f7f7f5;border-radius:6px;margin-bottom:12px">Company ID: <strong>C8000000333</strong>（系统自动展示）</div>
+
+    <div style="border:1px solid #e0dfd8;border-radius:8px;padding:12px;margin-bottom:10px;background:#f9f9f7">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:10px;display:flex;justify-content:space-between"><span>User #1</span><span style="color:#a32d2d;cursor:pointer;font-size:10px;border:1px solid #f09595;padding:1px 8px;border-radius:20px;background:#fcebeb">删除</span></div>
+
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;padding:5px 10px;border-radius:6px;margin-bottom:8px;border:1px solid #b5d4f4">14.2 相关人士选择（只读反显）</div>
+      <div class="g1" style="margin-bottom:8px">
+        <label class="field-label">相关人士名字 <span class="req">*</span></label>
+        <select class="fi"><option>CHAN Tai Man</option><option>LEE Siu Ming</option></select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#f0fbf5;border:1px solid #5dcaa5;border-radius:6px;font-size:11px;color:#085041;margin-bottom:8px">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" stroke="#0F6E56" stroke-width="1.2"/><path d="M4 6.5L6 8.5L9.5 5" stroke="#0F6E56" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        以下信息自动反显（只读），如需修改请返回 Section 10
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Identity Card Type</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">ID - HK Identity Card</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Identity Card Number</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888;font-family:monospace">A123456(7)</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">First Name</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">Tai Man</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Last Name</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">CHAN</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Chinese Name</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">陈大文</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Capacity of Connected Party</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">085 Beneficial Owner / 034 Director</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Email Address</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">chan@example.com</span></div>
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:10px;color:#aaa">Telephone</span><span style="font-size:11px;padding:4px 8px;background:#fff;border:1px solid #e0dfd8;border-radius:4px;color:#888">852 - 98765432</span></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;padding:5px 10px;border-radius:6px;margin-bottom:8px;border:1px solid #b5d4f4">14.3 BIB 用户配置（CDD-OPS 手工录入）</div>
+      <div class="g3">
+        <div class="field"><label class="field-label">User ID <span class="req">*</span></label><input type="text" class="fi" placeholder="BIB 用户登录 ID"></div>
+        <div class="field"><label class="field-label">Investment Flag <span class="req">*</span></label><select class="fi"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label class="field-label">User Group <span style="font-size:9px;background:#eeedfe;color:#3c3489;padding:1px 5px;border-radius:3px">Operator/Approver</span></label><select class="fi"><option>Default</option></select></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Authorization Level <span style="font-size:9px;background:#eeedfe;color:#3c3489;padding:1px 5px;border-radius:3px">Approver 必填</span></label><select class="fi"><option>请选择</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
+        <div class="field"><label class="field-label">View All Approvers' Records <span style="font-size:9px;background:#eeedfe;color:#3c3489;padding:1px 5px;border-radius:3px">Approver</span></label><select class="fi"><option>NO</option><option>YES</option></select></div>
+        <div class="field"><label class="field-label">FX Flag <span style="font-size:9px;background:#eeedfe;color:#3c3489;padding:1px 5px;border-radius:3px">Approver</span></label><select class="fi"><option>No</option><option>Yes</option></select></div>
+      </div>
+      <div class="g3">
+        <div class="field"><label class="field-label">Receive Notification <span class="req">*</span></label><select class="fi"><option>Yes</option><option>No</option></select></div>
+        <div class="field" style="grid-column:span 2"><label class="field-label">Notification Accounts <span style="font-size:9px;background:#faeeda;color:#633806;padding:1px 5px;border-radius:3px">Receive Notification = Yes 时显示</span></label>
+          <div style="border:1px solid #c8c7bf;border-radius:6px;padding:6px 10px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px"><input type="checkbox" checked style="accent-color:#185fa5"> All Account</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" checked style="accent-color:#185fa5"> DD Account1 + Account English Name（账号生成后自动更新）</div>
+          </div>
+        </div>
+      </div>
+      <div class="g4">
+        <div class="field"><label class="field-label">Revolving Loan Drawdown</label><select class="fi"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label class="field-label">Transaction Authority</label><select class="fi"><option>All Transfer</option></select></div>
+        <div class="field"><label class="field-label">Download Security Token</label><select class="fi"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label class="field-label">Receive Decryption Code</label><select class="fi"><option>No</option><option>Yes</option></select></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:600;color:#0c447c;background:#e6f1fb;padding:5px 10px;border-radius:6px;margin:8px 0;border:1px solid #b5d4f4">14.4 用户交易限额（仅 Operator 可见）</div>
+      <div class="g2" style="margin-bottom:6px">
+        <div style="font-size:11px;font-weight:600;color:#555;grid-column:span 2;margin-bottom:4px">User's BAU Account Transaction Limit</div>
+        <div class="field"><label class="field-label">Internal Transfer</label><input type="text" class="fi" placeholder="HKD 限额金额"></div>
+        <div class="field"><label class="field-label">Local Fund Transfer</label><input type="text" class="fi" placeholder="HKD 限额金额"></div>
+        <div class="field"><label class="field-label">Overseas Transfer</label><input type="text" class="fi" placeholder="HKD 限额金额"></div>
+        <div class="field"><label class="field-label">Payroll</label><input type="text" class="fi" placeholder="HKD 限额金额"></div>
+      </div>
+      <div class="g2">
+        <div style="font-size:11px;font-weight:600;color:#555;grid-column:span 2;margin-bottom:4px">User's Solar Account Transaction Limit</div>
+        <div class="field"><label class="field-label">Internal Transfer (Solar)</label><input type="text" class="fi" placeholder="HKD 限额金额"></div>
+      </div>
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb">+ 新增用户（最多 = Section 10 自然人数量）</div>
+  </div>
+</div>
+
+<!-- Section 15 -->
+<div class="sec">
+  <div class="sec-hd"><div class="sec-num num-amber">15</div><span class="sec-title">Set Transaction Limits（设置客户交易限额）</span></div>
+  <div class="sec-body">
+    <div class="note-blue">开户时账户尚未开立，此处仅设置客户层面限额。账户层面限额默认与客户层面一致，无需单独设置。</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
+      <thead>
+        <tr><th style="text-align:left;padding:6px 10px;background:#e6f1fb;color:#0c447c;font-size:11px;border-bottom:1px solid #b5d4f4">字段名</th><th style="text-align:right;padding:6px 10px;background:#e6f1fb;color:#0c447c;font-size:11px;border-bottom:1px solid #b5d4f4;width:220px">Maximum Limit (HKD)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="2" style="padding:5px 10px;background:#f7f7f5;font-size:11px;font-weight:600;color:#555;border-bottom:1px solid #e0dfd8">ZA Bank Same-Name Account Transfer</td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Daily Limit</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Unlimited"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">ZA Same-Name Account Transfer (Daily)</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Unlimited"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Time Deposit (Daily)</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Unlimited"></td></tr>
+        <tr><td colspan="2" style="padding:5px 10px;background:#f7f7f5;font-size:11px;font-weight:600;color:#555;border-bottom:1px solid #e0dfd8">Third Party Account Transfer</td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Daily Limit</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Local Third Party Account Transfer (Daily)</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Overseas Bank Account Transfer (Daily)</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Batch Payment (Daily)</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+        <tr><td colspan="2" style="padding:5px 10px;background:#f7f7f5;font-size:11px;font-weight:600;color:#555;border-bottom:1px solid #e0dfd8">Payroll Service</td></tr>
+        <tr><td style="padding:6px 10px 6px 20px;border-bottom:1px solid #e0dfd8">Daily Limit</td><td style="padding:4px 10px;border-bottom:1px solid #e0dfd8"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+        <tr><td style="padding:6px 10px 6px 20px">Payroll (Daily)</td><td style="padding:4px 10px"><input type="text" style="height:26px;border:1px solid #c8c7bf;border-radius:5px;padding:0 8px;font-size:11px;width:100%;background:#fff" placeholder="Max limit:"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section 16 -->
+<div class="sec">
+  <div class="sec-hd"><div class="sec-num num-amber">16</div><span class="sec-title">Set Authorization Preferences（设置授权偏好）</span></div>
+  <div class="sec-body">
+    <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">16.1 授权类型选择 — Select a currency type to set up authorization rules</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid #c8c7bf;border-radius:8px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><input type="checkbox" checked style="accent-color:#185fa5"> All Transaction Types</div>
+        <span style="font-size:10px;background:#e1f5ee;color:#085041;padding:1px 8px;border-radius:20px;border:1px solid #5dcaa5">Normal</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid #c8c7bf;border-radius:8px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><input type="checkbox" style="accent-color:#185fa5"> Solar Account Transaction Type</div>
+        <span style="font-size:10px;background:#fcebeb;color:#791f1f;padding:1px 8px;border-radius:20px;border:1px solid #f09595">No Setting</span>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">16.2 All Transaction Types — 授权规则设置</div>
+    <div class="g2" style="margin-bottom:10px">
+      <div class="field"><label class="field-label">Transaction Type</label><input type="text" class="fi" value="All Transaction Type" readonly style="background:#f5f5f0;color:#888"></div>
+      <div class="field"><label class="field-label">Currency Type</label><input type="text" class="fi" value="HKD" readonly style="background:#f5f5f0;color:#888"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:1;border:1px solid #85b7eb;border-radius:8px;padding:9px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12px;background:#e6f1fb">
+        <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #185fa5;display:flex;align-items:center;justify-content:center"><div style="width:5px;height:5px;border-radius:50%;background:#185fa5"></div></div>
+        Single Class Authorization
+        <div style="margin-left:auto"><select style="height:26px;border:1px solid #85b7eb;border-radius:5px;padding:0 8px;font-size:11px;background:#fff"><option>Select a Level</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></div>
+      </div>
+      <div style="flex:1;border:1px solid #c8c7bf;border-radius:8px;padding:9px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12px">
+        <div style="width:13px;height:13px;border-radius:50%;border:1.5px solid #c8c7bf"></div>
+        Multi Class Authorization, Set up authorization matrix as below
+      </div>
+    </div>
+    <div style="font-size:11px;color:#888;margin-bottom:6px">Multi Class Authorization — 授权矩阵（选择 Multi Class 后显示）：</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr>
+          <th colspan="2" style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;text-align:center;border:1px solid #b5d4f4">Amount Range (HKD)</th>
+          <th colspan="5" style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;text-align:center;border:1px solid #b5d4f4">Number of Approver(s)</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;text-align:center;border:1px solid #b5d4f4;width:70px">Action</th>
+        </tr>
+        <tr>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:130px">From</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:130px">To</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:60px;text-align:center">Level A</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:60px;text-align:center">Level B</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:60px;text-align:center">Level C</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:60px;text-align:center">Level D</th>
+          <th style="padding:5px 8px;background:#e6f1fb;color:#0c447c;font-weight:600;border:1px solid #b5d4f4;width:60px;text-align:center">Level E</th>
+          <th style="border:1px solid #b5d4f4"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8"><input type="text" value="0.00" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8"><input type="text" value="50,000.00" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="1" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="1" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="0" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="0" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="0" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><span style="font-size:11px;color:#a32d2d;cursor:pointer">Remove</span></td>
+        </tr>
+        <tr>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8"><input type="text" value="50,000.00" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8"><input type="text" placeholder="留空=无上限" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="1" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="1" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="1" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="0" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><input type="text" value="0" style="width:100%;height:26px;border:1px solid #c8c7bf;border-radius:4px;padding:0 6px;font-size:11px;text-align:center"></td>
+          <td style="padding:4px 6px;border:1px solid #e0dfd8;text-align:center"><span style="font-size:11px;color:#a32d2d;cursor:pointer">Remove</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border:1px solid #85b7eb;border-radius:20px;font-size:11px;color:#185fa5;cursor:pointer;background:#e6f1fb;margin-top:8px">+ Add a New Rule</div>
+    <div style="margin-top:12px;padding:8px 12px;background:#e1f5ee;border:1px solid #5dcaa5;border-radius:6px;font-size:11px;color:#085041">
+      完成全部 BIB 设置后，系统默认自动为每名 BIB 用户发送 Welcome Letter，无需手动触发。
+    </div>
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<div class="footer">
+  <button class="btn" onclick="history.back()">Back</button>
+  <button class="btn btn-teal" onclick="saveDraft()">Save Draft</button>
+  <button class="btn btn-blue" id="risk-scoring-btn" onclick="startRiskScoring()" title="系統將自動執行：Name Screening → Risk Scoring → 跳轉審批頁">
+    Risk Scoring
+  </button>
+</div>
+
+<!-- Risk Scoring Progress Overlay -->
+<div id="rs-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;padding:32px 40px;min-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <div id="rs-spinner" style="width:44px;height:44px;border:4px solid #e6f1fb;border-top-color:#185fa5;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px;"></div>
+    <div id="rs-step-label" style="font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:8px;">評估中...</div>
+    <div id="rs-step-desc" style="font-size:12px;color:#888;">Step 1 / 3：正在執行 Name Screening...</div>
+    <div style="margin-top:16px;height:4px;background:#e6f1fb;border-radius:2px;overflow:hidden;">
+      <div id="rs-progress-bar" style="height:100%;width:10%;background:#185fa5;border-radius:2px;transition:width 0.5s ease;"></div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+function expandAll() {
+  document.querySelectorAll('.sec-body').forEach(function(b) { b.style.display = 'block'; });
+}
+function collapseAll() {
+  document.querySelectorAll('.sec-body').forEach(function(b) { b.style.display = 'none'; });
+}
+
+function fillTestData() {
+  // ── Section 0 ──
+  var docType = document.querySelector('select');
+  if (docType) docType.value = docType.options[0]?.value || '';
+  var docNum = document.querySelector('input[placeholder="YYYYMMDD"], input[value="7546205"]');
+
+  // ── Section 1: Company Information ──
+  var inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]');
+  var selects = document.querySelectorAll('select');
+
+  // Helper: set value by placeholder or nearby label text
+  function setByPlaceholder(ph, val) {
+    document.querySelectorAll('input[placeholder="' + ph + '"], textarea[placeholder="' + ph + '"]').forEach(function(el) { el.value = val; });
+  }
+  function setSelectByLabel(labelText, val) {
+    document.querySelectorAll('.field').forEach(function(f) {
+      var lbl = f.querySelector('.field-label');
+      if (lbl && lbl.textContent.trim().indexOf(labelText) >= 0) {
+        var sel = f.querySelector('select');
+        if (sel) {
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === val || sel.options[i].text.indexOf(val) >= 0) {
+              sel.selectedIndex = i; break;
+            }
+          }
+        }
+        var inp = f.querySelector('input[type="text"]');
+        if (inp && !f.querySelector('select')) inp.value = val;
+      }
+    });
+  }
+
+  // Section 1
+  setSelectByLabel('Company Type', 'CO');
+  setSelectByLabel('ID Type', 'BUSINESS REGISTRATION CERTIFICATE');
+  setByPlaceholder('7546205', '7546205');
+  document.querySelectorAll('input[value="7546205"]').forEach(function(el){ el.value = '7546205'; });
+  document.querySelectorAll('input[value="AUTOTEST&RmCompany46053"]').forEach(function(el){ el.value = 'AUTOTEST&RmCompany46053'; });
+  document.querySelectorAll('input[value="自动化测试RM公司6122"]').forEach(function(el){ el.value = '自动化测试RM公司6122'; });
+  setByPlaceholder('YYYYMMDD', '20200101');
+  setSelectByLabel('Country of Registration', 'HKG');
+  setSelectByLabel('Channel', 'W');
+  setSelectByLabel('Usage of products', '1');
+  setSelectByLabel('High Tax Evasion Risk', 'N');
+  setSelectByLabel('Bearer Shares Issued', 'N');
+  setSelectByLabel('Classify', 'Normal');
+  setSelectByLabel('Whether board resolution obtained', 'Y');
+
+  // Trading Name
+  setByPlaceholder('AUTOTEST Trading HK', 'AUTOTEST Trading HK');
+
+  // Registered Address
+  setSelectByLabel('Country of Registration', 'HKG - Hong Kong S.A.R');
+  setByPlaceholder('IT STREET', 'IT STREET');
+
+  // Section 2
+  setByPlaceholder('联系人名字', 'Tai Man');
+  setByPlaceholder('联系人姓氏', 'CHAN');
+  setByPlaceholder('电子邮件', 'taiman.chan@test.com');
+  setByPlaceholder('电话号码', '98765432');
+  setByPlaceholder('公司网页（选填）', 'www.autotest-rmcompany.com');
+  setSelectByLabel('Job Title', '01');
+
+  // Section 3
+  setSelectByLabel('Principal Place of Operations', 'HKG - Hong Kong');
+  setSelectByLabel('Industry Category', 'Trading');
+  setByPlaceholder('行业小类/主要产品与服务', 'Import and Export Trading');
+  setSelectByLabel('Whether WEB3 Company', 'N');
+  setSelectByLabel('Is your Company a Holding Company', 'N');
+  setByPlaceholder('街道', '1 FINANCE STREET');
+
+  // Section 4
+  setByPlaceholder('全年营业额（等值港币）', '5000000');
+  setByPlaceholder('资产规模（选填）', '10000000');
+  setByPlaceholder('净利润（选填）', '500000');
+  setByPlaceholder('MM/DD（如 12/31）', '12/31');
+  setSelectByLabel('Currency', 'HKD');
+  // SEQ Q1/Q2/Q3 = N (default)
+
+  // Section 5: SOF/SOW — click BI pill for all 4 groups
+  ['sof-init','sof-ongo','sow-init','sow-ongo'].forEach(function(gid) {
+    var grp = document.getElementById(gid + '-group');
+    if (!grp) return;
+    var biCb = grp.querySelector('input[value="BI"]');
+    if (biCb && !biCb.checked) { biCb.checked = true; if (typeof sofToggle === 'function') sofToggle(biCb, gid); biCb.closest('.sof-pill').classList.add('sof-checked'); }
+  });
+
+  // Section 6: Purpose
+  var purposeCbs = document.querySelectorAll('.check-row input[type="checkbox"]');
+  if (purposeCbs.length > 0) { purposeCbs[0].checked = true; } // BO
+
+  // Section 7: FATCA/CRS defaults already set
+
+  // Section 8: Company Change = N
+  setSelectByLabel('Company Change flag', 'N');
+
+  // Section 9: Secretary
+  setByPlaceholder('秘书公司英文名称', 'ABC SECRETARIAL SERVICES LTD');
+  setByPlaceholder('秘书公司中文名称（选填）', '美興秘書服務有限公司');
+
+  // Section 10: Individual #1
+  setByPlaceholder('联系人名字', 'Tai Man');  // reuse
+  document.querySelectorAll('input[value="Tai Man"]').forEach(function(el){ el.value = 'Tai Man'; });
+  document.querySelectorAll('input[value="CHAN"]').forEach(function(el){ el.value = 'CHAN'; });
+  document.querySelectorAll('input[value="陈大文"]').forEach(function(el){ el.value = '陈大文'; });
+  document.querySelectorAll('input[value="19800101"]').forEach(function(el){ el.value = '19800101'; });
+  document.querySelectorAll('input[value="60"]').forEach(function(el){ el.value = '60'; });
+
+  // Section 11: DD Account
+  setSelectByLabel('Account Type', 'Client Account');
+  setByPlaceholder('账户英文名称', 'AUTOTEST&RMCOMPANY46053');
+
+  // Section 12: Signing Arrangement
+  setSelectByLabel('Signing Arrangement', 'Any One');
+
+  // Expand all sections to show filled data
+  expandAll();
+
+  // Update topbar timestamp
+  var ts = document.querySelector('.topbar-right span:last-child, .topbar-right');
+  var now = new Date();
+  var timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  if (ts) ts.textContent = '草稿已保存 ' + timeStr;
+
+  alert('✅ 測試數據已填入！Section 0-12 已預填模擬數據，請核對後點擊「Risk Scoring」。');
+}
+
+function saveDraft() {
+  var btn = document.querySelector('.btn-teal');
+  btn.textContent = '保存中...';
+  btn.disabled = true;
+  setTimeout(function() {
+    btn.textContent = 'Save Draft';
+    btn.disabled = false;
+    // Update topbar timestamp
+    var ts = document.querySelector('.topbar-right');
+    if (ts) {
+      var now = new Date();
+      ts.textContent = '草稿已保存 ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    }
+  }, 800);
+}
+
+function startRiskScoring() {
+  var overlay = document.getElementById('rs-overlay');
+  var label = document.getElementById('rs-step-label');
+  var desc = document.getElementById('rs-step-desc');
+  var bar = document.getElementById('rs-progress-bar');
+  var btn = document.getElementById('risk-scoring-btn');
+
+  btn.disabled = true;
+  btn.textContent = '評估中...';
+  overlay.style.display = 'flex';
+
+  // Step 1: Name Screening
+  setTimeout(function() {
+    label.textContent = 'Step 1 / 3：Name Screening';
+    desc.textContent = '正在調用 LYODS 名單管理系統掃描...';
+    bar.style.width = '33%';
+  }, 100);
+
+  // Step 2: Risk Scoring
+  setTimeout(function() {
+    label.textContent = 'Step 2 / 3：Risk Scoring';
+    desc.textContent = '正在根據 CRA 打分表計算風險評分...';
+    bar.style.width = '66%';
+  }, 1800);
+
+  // Step 3: Done -> navigate to page3
+  setTimeout(function() {
+    label.textContent = 'Step 3 / 3：完成';
+    desc.textContent = '正在跳轉至審批詳情頁...';
+    bar.style.width = '100%';
+    bar.style.background = '#1d9e75';
+  }, 3200);
+
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = 'Risk Scoring';
+    alert('Risk Scoring 完成！（原型模擬：實際會跳轉到頁面三 /bb-cases/{caseNo}）');
+  }, 4200);
+}
+</script>
+
+</div><!-- end page-main -->
+</div><!-- end page-layout -->
+
+<script>
+// Nav scroll
+    function sofToggle(cb, groupId, otherId) {
+      var group = document.getElementById(groupId + '-group');
+      var checks = group.querySelectorAll('input[type="checkbox"]:checked');
+      // Max 5
+      if (cb.checked && checks.length > 5) { cb.checked = false; return; }
+      // Toggle checked style
+      cb.parentElement.classList.toggle('sof-checked', cb.checked);
+      // Show/hide Other input
+      if (otherId) {
+        var otherDiv = document.getElementById(otherId);
+        var hintDiv  = document.getElementById(otherId + '-hint');
+        if (otherDiv) { otherDiv.classList.toggle('show', cb.checked); }
+        if (hintDiv)  { hintDiv.style.display = cb.checked ? 'none' : 'block'; }
+      }
+    }
+
+function scrollToSec(n) {
+  var secs = document.querySelectorAll('.sec');
+  if (secs[n]) {
+    secs[n].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+// Highlight active section on scroll
+window.addEventListener('scroll', function() {
+  var secs = document.querySelectorAll('.sec');
+  var navItems = document.querySelectorAll('.left-nav-item');
+  var scrollY = window.scrollY + 120;
+  secs.forEach(function(sec, i) {
+    var top = sec.getBoundingClientRect().top + window.scrollY;
+    var bottom = top + sec.offsetHeight;
+    if (scrollY >= top && scrollY < bottom) {
+      navItems.forEach(function(item) { item.classList.remove('active'); });
+      if (navItems[i]) navItems[i].classList.add('active');
+    }
+  });
+});
+
+function addOldName() {
+  var list = document.getElementById('old-name-list');
+  var rows = list.querySelectorAll('.old-name-row');
+  if (rows.length >= 10) { alert('最多 10 條舊公司名稱'); return; }
+  var clone = rows[0].cloneNode(true);
+  clone.querySelectorAll('input').forEach(i => i.value = '');
+  var num = rows.length + 1;
+  clone.querySelector('.multi-item-hd span').textContent = 'Old Company Name #' + num;
+  list.appendChild(clone);
+}
+function addSimpleCountryRow(listId, rowClass) {
+  var list = document.getElementById(listId);
+  var rows = list.querySelectorAll('.' + rowClass);
+  var maxMap = {'branch-list': 10, 'counterparty-list': 5};
+  var max = maxMap[listId] || 10;
+  if (rows.length >= max) { alert('已達最多數量限制'); return; }
+  var clone = rows[0].cloneNode(true);
+  clone.querySelector('select').selectedIndex = 0;
+  list.appendChild(clone);
+}
+function addEmployeeRow() {
+  var list = document.getElementById('employee-list');
+  var rows = list.querySelectorAll('.employee-row');
+  if (rows.length >= 5) { alert('最多 5 組僱員記錄'); return; }
+  var clone = rows[0].cloneNode(true);
+  clone.querySelector('select').selectedIndex = 0;
+  clone.querySelector('input[type="number"]').value = '';
+  list.appendChild(clone);
+}
+function addAssetsRow() {
+  var list = document.getElementById('assets-list');
+  var rows = list.querySelectorAll('.assets-row');
+  if (rows.length >= 10) { alert('最多 10 個資產國家'); return; }
+  var clone = rows[0].cloneNode(true);
+  clone.querySelector('select').selectedIndex = 0;
+  clone.querySelector('input[type="number"]').value = '';
+  list.appendChild(clone);
+}
+function addCountryRow(listId, rowClass) {
+  var list = document.getElementById(listId);
+  var template = list.querySelector('.' + rowClass);
+  var clone = template.cloneNode(true);
+  // Reset values
+  clone.querySelector('select').selectedIndex = 0;
+  clone.querySelector('input').value = '';
+  list.appendChild(clone);
+}
+
+/* ── TU Company Search ───────────────────────────── */
+var TU_MOCK = {
+  BR: {
+    source: 'IRD（BR）',
+    type: 'CO - Limited Company (Unlisted)', statusText: 'Active', statusColor: '#085041',
+    name: 'Mock Trading Company Limited', date: '2018-06-01',
+    address: 'Flat A, 10/F, Mock Building, 123 Mock Street, Kowloon, Hong Kong',
+    regNo: '7546205',
+    members: [
+      { role:'Director',    idType:'ID', otherIdType:'–', idNo:'A123456(7)', first:'Tai Man',  last:'CHAN', pct:'–' },
+      { role:'Shareholder', idType:'ID', otherIdType:'–', idNo:'B234567(8)', first:'Mei Ling', last:'LEE', pct:'60%' }
+    ],
+    docs: ['Business Registration Certificate','Certificate of Incorporation','NAR1','M&A','Form1(a)','Individual Background','Summary of Risk Assessment']
+  },
+  CI: {
+    source: 'HKCR（CI）',
+    type: 'CO - Limited Company (Unlisted)', statusText: 'Active', statusColor: '#085041',
+    name: 'Mock Holdings Limited', date: '2015-03-01',
+    address: 'Suite 2001, 20/F, Mock Tower, 456 Queen Road, Central, Hong Kong',
+    regNo: '87654321',
+    members: [
+      { role:'Director',    idType:'PP', otherIdType:'–', idNo:'K12345678',  first:'Siu Ming', last:'WONG', pct:'–' },
+      { role:'Shareholder', idType:'ID', otherIdType:'–', idNo:'C345678(9)', first:'Ka Ying',  last:'CHAN', pct:'100%' }
+    ],
+    docs: ['Certificate of Incorporation','Business Registration Certificate','M&A','Form1(a)','Form1(c)','NAR1']
+  }
+};
+
+function runTUSearch() {
+  var docType = document.getElementById('tu-doc-type').value;
+  var docNo   = (document.getElementById('tu-doc-number').value || '').trim();
+  if (!docNo) {
+    var err = document.getElementById('tu-error');
+    err.textContent = '⚠ 請輸入證書號碼';
+    err.style.display = 'block';
+    return;
+  }
+  document.getElementById('tu-error').style.display    = 'none';
+  document.getElementById('tu-alert-ok').style.display = 'none';
+  document.getElementById('tu-loading').style.display  = 'block';
+  document.getElementById('tu-search-btn').disabled    = true;
+
+  setTimeout(function() {
+    document.getElementById('tu-loading').style.display  = 'none';
+    document.getElementById('tu-search-btn').disabled    = false;
+    var d = JSON.parse(JSON.stringify(TU_MOCK[docType] || TU_MOCK.BR));
+    d.regNo = docNo;
+    fillTUResult(d, docType);
+    document.getElementById('tu-alert-ok').style.display = 'flex';
+    // Scroll to Company Search section
+    var cs = document.getElementById('tu-company-search');
+    if (cs) cs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 900);
+}
+
+function fillTUResult(d, docType) {
+  // Update header
+  document.getElementById('tu-source-label').textContent = d.source;
+  document.getElementById('tu-queried-badge').style.display = 'inline';
+
+  // Show result block, hide placeholder
+  document.getElementById('tu-cs-placeholder').style.display = 'none';
+  document.getElementById('tu-cs-result').style.display      = 'block';
+
+  // ① Entity Details
+  document.getElementById('tu-ent-type').textContent   = d.type;
+  document.getElementById('tu-ent-status').innerHTML   = '<span style="color:'+d.statusColor+';font-weight:600">'+d.statusText+'</span>';
+  document.getElementById('tu-ent-name').textContent   = d.name;
+  document.getElementById('tu-ent-date').textContent   = d.date;
+  document.getElementById('tu-ent-addr').textContent   = d.address;
+
+  // ② Connected Party
+  var tbody = document.getElementById('tu-party-tbody');
+  tbody.innerHTML = '';
+  d.members.forEach(function(m, i) {
+    var isLast = i === d.members.length - 1;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px">'+m.role+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px">'+m.idType+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px;color:#888">'+m.otherIdType+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px;font-family:monospace">'+m.idNo+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px">'+m.first+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px">'+m.last+'</td>'+
+      '<td style="padding:7px 12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;')+'font-size:11px;text-align:right">'+m.pct+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  // ③ Related Documents
+  var docList = document.getElementById('tu-docs-list');
+  docList.innerHTML = '';
+  d.docs.forEach(function(name, i) {
+    var isLast = i === d.docs.length - 1;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;padding:7px 12px;font-size:12px;'+(isLast?'':'border-bottom:1px solid #e0dfd8;');
+    row.innerHTML =
+      '<span style="flex:1;color:#1a1a18">'+name+'</span>'+
+      '<div style="display:flex;gap:8px;align-items:center">'+
+        (i===0
+          ? '<span style="font-size:11px;color:#185fa5;cursor:pointer">Delete</span>'+
+            '<span style="font-size:11px;color:#185fa5;cursor:pointer">Download</span>'+
+            '<span style="font-size:11px;color:#185fa5;cursor:pointer">Preview</span>'
+          : '<span style="font-size:11px;color:#1d9e75;cursor:pointer;border:1px solid #5dcaa5;padding:2px 9px;border-radius:4px;background:#e1f5ee">Upload</span>'
+        )+
+      '</div>';
+    docList.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
